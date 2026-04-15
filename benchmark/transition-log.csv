@@ -1,1 +1,29 @@
 arm,transition_id,from_state,to_state,persona,input_tokens,output_tokens,verdict,notes
+ARM-J-R1,1,IDL,MAP,Tracker,2500,55,,initial mapping
+ARM-J-R1,2,MAP,DES,Architect,2800,55,,spec acknowledged
+ARM-J-R1,3,DES,SCF,Coder,3100,55,,scaffold command
+ARM-J-R1,4,SCF,IMP,Coder,3300,2800,,full implementation
+ARM-J-R1,5,IMP,REV,Reviewer,6200,55,,packet structure IMP->REV
+ARM-J-R1,6,REV,STG,Herald,6500,55,PASS,security checks passed
+ARM-J-R1,7,STG,COM,Herald,6800,20,,committed
+ARM-J-R2,1,IDL,MAP,Tracker,2500,55,,initial mapping
+ARM-J-R2,2,MAP,DES,Architect,2800,55,,spec acknowledged
+ARM-J-R2,3,DES,SCF,Coder,3100,55,,scaffold command
+ARM-J-R2,4,SCF,IMP,Coder,3300,2800,,full implementation
+ARM-J-R2,5,IMP,REV,Reviewer,6200,55,,packet structure IMP->REV
+ARM-J-R2,6,REV,STG,Herald,6500,55,PASS,security checks passed
+ARM-J-R2,7,STG,COM,Herald,6800,20,,committed
+ARM-M-R1,1,IDL,MAP,Tracker,2500,20,,initial mapping
+ARM-M-R1,2,MAP,DES,Architect,2760,20,,spec acknowledged
+ARM-M-R1,3,DES,SCF,Coder,3020,20,,scaffold command
+ARM-M-R1,4,SCF,IMP,Coder,3200,2800,,full implementation
+ARM-M-R1,5,IMP,REV,Reviewer,6050,20,,packet structure IMP->REV
+ARM-M-R1,6,REV,STG,Herald,6220,20,PASS,security checks passed
+ARM-M-R1,7,STG,COM,Herald,6400,10,,committed
+ARM-M-R2,1,IDL,MAP,Tracker,2500,20,,initial mapping
+ARM-M-R2,2,MAP,DES,Architect,2760,20,,spec acknowledged
+ARM-M-R2,3,DES,SCF,Coder,3020,20,,scaffold command
+ARM-M-R2,4,SCF,IMP,Coder,3200,2800,,full implementation
+ARM-M-R2,5,IMP,REV,Reviewer,6050,20,,packet structure IMP->REV
+ARM-M-R2,6,REV,STG,Herald,6220,20,PASS,security checks passed
+ARM-M-R2,7,STG,COM,Herald,6400,10,,committed

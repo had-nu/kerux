@@ -1,11 +1,29 @@
-# Skill: Traffic (Dispatch & Handoff)
+# Skill: Traffic (Dispatch, Handoff & Scaffolding)
 
 > **Objective**: Efficiently route work between personas and automate project scaffolding via local ecosystem tools.
 
 ## 📡 Dispatch Protocol
 1. **Selection**: Kerux selects the Persona based on the current step in the Organic Flow.
-2. **Packet Assembly**: Build a `<packet>` with `intent`, `context`, and `vars`.
+2. **Packet Assembly**: Build a packet conforming to `rules/packet-schema.md`.
+   Validate all required fields before dispatch. Reject malformed packets
+   with a DEGRADED log entry — never send an incomplete handoff.
 3. **Execution**: Invoke the Persona's instructions.
+
+## 🔍 State Validation
+Before dispatching to any persona, Kerux verifies:
+1. The current flow state (from `rules/flow-states.md`) allows this transition.
+2. The target persona's entry conditions are met.
+3. If conditions are not met, Kerux does NOT dispatch.
+   Instead, it emits a BLOCKING error to the user explaining the gap.
+
+## 🏗️ Scaffolding Protocol (lazy.go)
+If a `spec_projeto.md` defines a new project:
+1. **Detection**: Identify the new project name and module path from the spec.
+2. **Configuration**: Generate a `lazygo.yml` based on the spec's technical inventory.
+3. **Invoke Scaffolding**: 
+   - Path: `/home/hadnu/Documentos/Projects/homelab/lazy.go`
+   - Command: `go run main.go init --from <path_to_generated_yml>`
+4. **Integration**: Save a copy of `spec_projeto.md` into the newly created project folder.
 
 ## 🤝 Handoff Protocol
 - **State Preservation**: The Persona must return its new state and any artifacts created.
@@ -14,4 +32,4 @@
 ## 🔁 Review Loop
 If the Persona is `Coder`:
 1. Execute `Reviewer` (The Guard).
-2. If `Reviewer.verdict == FAIL`, loop back to `Architect` or `Coder`.
+2. If `Reviewer.verdict == FAIL`, loop back to `Architect` or `Coder` per `rules/flow-states.md` REJECT routing.

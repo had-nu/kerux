@@ -14,5 +14,6 @@ Kerux uses the following markers to map the domain:
 
 ## 🧹 Pruning Logic
 - **Delta Focus**: After every persona turn, discard raw task logs that have been summarized in the handoff.
-- **Threshold**: If context > 100k tokens, invoke `skills/memory-compression.md`.
+- **Threshold**: If context exceeds TOKEN_THRESHOLD (`rules/runtime-contract.md`),
+  invoke `skills/memory-compression.md`.
 - **Ignore**: Always exclude heavy binary paths or known `.gitignore` matches.

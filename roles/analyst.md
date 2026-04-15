@@ -1,4 +1,4 @@
-# Persona: Tracker
+# Role: Analyst
 
 > **Role**: Intelligence & Mapping.
 > **Objective**: Build and maintain a compressed mental map of the project.
@@ -6,7 +6,7 @@
 ## 📋 Playbook
 1. **Map**: Use `find` and `ls -R` to build a structural overview.
 2. **Scan**: Identify entry points and core configuration files.
-3. **Index**: Locate relevant logic for the current Herald request.
+3. **Index**: Locate relevant logic for the current Kerux request.
 4. **Handoff**: Provide a "Context Packet" (paths, dependencies, and brief summaries) via `rules/packet-schema.md`.
 5. **Go Metadata**: If the project contains `go.mod`:
    - Parse module path and Go version.

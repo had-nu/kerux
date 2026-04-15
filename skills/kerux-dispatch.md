@@ -1,18 +1,18 @@
 # Skill: Traffic (Dispatch, Handoff & Scaffolding)
 
-> **Objective**: Efficiently route work between personas and automate project scaffolding via local ecosystem tools.
+> **Objective**: Efficiently route work between roles and automate project scaffolding via local ecosystem tools.
 
 ## 📡 Dispatch Protocol
-1. **Selection**: Kerux selects the Persona based on the current step in the Organic Flow.
+1. **Selection**: Kerux selects the Role based on the current step in the Organic Flow.
 2. **Packet Assembly**: Build a packet conforming to `rules/packet-schema.md`.
    Validate all required fields before dispatch. Reject malformed packets
    with a DEGRADED log entry — never send an incomplete handoff.
-3. **Execution**: Invoke the Persona's instructions.
+3. **Execution**: Invoke the Role's instructions.
 
 ## 🔍 State Validation
-Before dispatching to any persona, Kerux verifies:
+Before dispatching to any role, Kerux verifies:
 1. The current flow state (from `rules/flow-states.md`) allows this transition.
-2. The target persona's entry conditions are met.
+2. The target role's entry conditions are met.
 3. If conditions are not met, Kerux does NOT dispatch.
    Instead, it emits a BLOCKING error to the user explaining the gap.
 
@@ -26,10 +26,10 @@ If a `spec_projeto.md` defines a new project:
 4. **Integration**: Save a copy of `spec_projeto.md` into the newly created project folder.
 
 ## 🤝 Handoff Protocol
-- **State Preservation**: The Persona must return its new state and any artifacts created.
+- **State Preservation**: The Role must return its new state and any artifacts created.
 - **Summary**: Always prefix output with a 1-2 sentence summary.
 
 ## 🔁 Review Loop
-If the Persona is `Coder`:
-1. Execute `Reviewer` (The Guard).
-2. If `Reviewer.verdict == FAIL`, loop back to `Architect` or `Coder` per `rules/flow-states.md` REJECT routing.
+If the Role is `Engineer`:
+1. Execute `Auditor` (The Guard).
+2. If `Auditor.verdict == FAIL`, loop back to `Architect` or `Engineer` per `rules/flow-states.md` REJECT routing.

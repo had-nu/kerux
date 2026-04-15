@@ -59,7 +59,7 @@ Total       34,295          33,060          -1,235
 
 ## Security Parity
 
-Both ARM deliverables implemented the control spec identically due to identical Coder persona files mapping a deterministic spec.
+Both ARM deliverables implemented the control spec identically due to identical Engineer role files mapping a deterministic spec.
 
 | S# | Check | ARM-J | ARM-M | Verified By |
 |---|-------|-------|-------|-------------|
@@ -76,7 +76,7 @@ Both ARM deliverables implemented the control spec identically due to identical 
 
 ## Observations
 1. **Geometric Accumulation:** Saving 35 tokens off a packet seems trivial, but because the LLM context passes the entire transcript forward, that 35-token surplus gets re-ingested at every subsequent state. A 7-state flow re-ingests the first packet 6 times.
-2. **Rejection Immunity:** With a detailed control specification (`spec_projeto.md`), the Architect and Coder rarely deviate. This suppressed the `H2` hypothesis (rejection penalty) entirely to 0.
+2. **Rejection Immunity:** With a detailed control specification (`spec_projeto.md`), the Architect and Engineer rarely deviate. This suppressed the `H2` hypothesis (rejection penalty) entirely to 0.
 
 ## Recommendation
 

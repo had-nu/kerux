@@ -16,5 +16,5 @@
 - Avoid "god files" that handle multiple unrelated responsibilities.
 
 ## 🚦 E4: Review Loop
-- All non-trivial code changes MUST be audited by the Reviewer persona.
-- Rejection by the Reviewer triggers a mandatory redesign phase.
+- All non-trivial code changes MUST be audited by the Auditor role.
+- Rejection by the Auditor triggers a mandatory redesign phase.

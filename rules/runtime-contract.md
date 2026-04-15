@@ -11,7 +11,7 @@
 
 ## Optional Capabilities
 4. Persistent file storage between sessions (enables session.json / lessons.md).
-5. Web search (enables Tracker web intelligence skill).
+5. Web search (enables Analyst web intelligence skill).
 6. Web browsing (enables visual verification skill).
 
 ## Adaptation Variables

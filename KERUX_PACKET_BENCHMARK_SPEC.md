@@ -16,8 +16,8 @@
 | **Marker format (ARM-M)** | State transition markers. Positional shorthand, ~20 tokens per packet. Assumes shared context window. |
 | **JSON format (ARM-J)** | Compact self-contained JSON envelopes, ~55 tokens per packet. Carries data inline. |
 | **Control spec** | A fixed `spec_projeto.md` used identically in both arms. Not generated per-arm. |
-| **Token budget** | Total input + output tokens consumed from IDLE to COMMITTED across all personas. |
-| **Rejection cost** | Additional tokens consumed by state transitions caused by Reviewer REJECT verdicts. |
+| **Token budget** | Total input + output tokens consumed from IDLE to COMMITTED across all roles. |
+| **Rejection cost** | Additional tokens consumed by state transitions caused by Auditor REJECT verdicts. |
 | **Security baseline** | The minimum set of checks that the delivered code must pass to be considered secure. |
 
 ---
@@ -28,7 +28,7 @@
 
 **H₁ (alternative):** The marker format (ARM-M) consumes fewer total tokens than the JSON format (ARM-J) for the same deliverable quality, because it avoids data duplication within a shared context window.
 
-**H₂ (risk hypothesis):** The marker format produces more Reviewer rejections than the JSON format, because compressed markers may lose contextual signal that the Reviewer needs for accurate auditing.
+**H₂ (risk hypothesis):** The marker format produces more Auditor rejections than the JSON format, because compressed markers may lose contextual signal that the Auditor needs for accurate auditing.
 
 The benchmark validates or falsifies all three hypotheses with measured data.
 
@@ -51,7 +51,7 @@ CONTROL SPEC ──────┤                                            �
 | Variable | Value | Rationale |
 |----------|-------|-----------|
 | `spec_projeto.md` | Pre-authored, identical in both arms | Eliminates Architect variability. |
-| Persona instructions | Identical `.kerux/` files (post-consolidation) | No persona behavioural difference between arms. |
+| Role instructions | Identical `.kerux/` files (post-consolidation) | No role behavioural difference between arms. |
 | LLM model | Same model, same temperature, same system prompt | Controls for model variability. |
 | Security baseline | Defined in §5 — identical checks for both arms | Same quality bar. |
 | Go toolchain | Same `go` version, same linters, same flags | Deterministic tooling output. |
@@ -71,7 +71,7 @@ CONTROL SPEC ──────┤                                            �
 | **M1: Total token budget** | tokens (input + output) | End of arm |
 | **M2: Tokens per state transition** | tokens / transition | Each state boundary |
 | **M3: Number of state transitions** | count | End of arm |
-| **M4: Reviewer rejection count** | count | Each REVIEWING state exit |
+| **M4: Auditor rejection count** | count | Each REVIEWING state exit |
 | **M5: Rejection cost** | tokens | Sum of tokens consumed in reject→rework→re-review cycles |
 | **M6: Security baseline pass rate** | % (0–100) | Post-COMMITTED |
 | **M7: Functional completeness** | % (0–100) | Post-COMMITTED |
@@ -93,7 +93,7 @@ D5 is the decisive metric. If D5 > 0, the marker format wins net. If D5 ≤ 0, t
 
 ## 3. Test Project: `sigcheck`
 
-A minimal Go CLI tool chosen to exercise all Kerux personas and the security baseline without exceeding ~300 LOC.
+A minimal Go CLI tool chosen to exercise all Kerux roles and the security baseline without exceeding ~300 LOC.
 
 ### 3.1 Functional Requirements
 
@@ -109,21 +109,21 @@ sigcheck generate --target ./dist/ --output checksums.sha256
 
 ### 3.2 Why This Project
 
-| Kerux persona | Exercise point |
+| Kerux role | Exercise point |
 |--------------|---------------|
-| **Tracker** | Must map the directory structure, identify `go.mod`, determine project type. Non-trivial because Cobra subcommands create a multi-file `cmd/` layout. |
+| **Analyst** | Must map the directory structure, identify `go.mod`, determine project type. Non-trivial because Cobra subcommands create a multi-file `cmd/` layout. |
 | **Architect** | Must design the spec with file walking, hash computation, manifest parsing. Decisions around error handling (partial failures vs fail-fast). |
-| **Coder** | Must implement file walking with goroutines (security: path traversal), crypto (must use `crypto/sha256`, not `md5`), CLI (Cobra with RunE). |
-| **Reviewer** | Must audit: path traversal protection, no race conditions in concurrent hashing, correct exit codes, no swallowed errors, no hardcoded paths. |
+| **Engineer** | Must implement file walking with goroutines (security: path traversal), crypto (must use `crypto/sha256`, not `md5`), CLI (Cobra with RunE). |
+| **Auditor** | Must audit: path traversal protection, no race conditions in concurrent hashing, correct exit codes, no swallowed errors, no hardcoded paths. |
 
 ### 3.3 Security Surface
 
 The project has a real security surface, not an artificial one:
 
-| Risk | Expected control | Reviewer check |
+| Risk | Expected control | Auditor check |
 |------|-----------------|---------------|
 | Path traversal via manifest entries | `safePath()` validation — candidate must stay under base dir | Grep for `filepath.Join` without prefix check |
-| TOCTOU in verify (file changes between hash and report) | Document as known limitation in spec; no mitigation required for v1 | Reviewer confirms spec acknowledges the limitation |
+| TOCTOU in verify (file changes between hash and report) | Document as known limitation in spec; no mitigation required for v1 | Auditor confirms spec acknowledges the limitation |
 | Symlink following | `filepath.WalkDir` with `d.Type()` check — skip symlinks | Grep for symlink handling in walk function |
 | Large file DoS | `io.LimitReader` or streaming hash (no full-file `os.ReadFile`) | Grep for `os.ReadFile` in hash function — must not exist |
 | Manifest injection (malicious paths in manifest) | Parse manifest with path validation per line | Grep for validation in manifest parser |
@@ -139,7 +139,7 @@ The `spec_projeto.md` for `sigcheck` is authored once, manually, before either a
 - Guardrails matching §3.3 above.
 - CI Mirror: `go vet`, `staticcheck`, `gosec`, `go test -race`.
 
-This spec is committed to the repository before either arm runs. Neither arm's Architect persona modifies it — the Architect's role in both arms is limited to acknowledging the spec and handing off to the Coder.
+This spec is committed to the repository before either arm runs. Neither arm's Architect role modifies it — the Architect's role in both arms is limited to acknowledging the spec and handing off to the Engineer.
 
 ---
 
@@ -153,24 +153,24 @@ This spec is committed to the repository before either arm runs. Neither arm's A
 
 | Slot | Content | Max length |
 |------|---------|-----------|
-| `target` | Single-letter persona code: T(racker), A(rchitect), C(oder), R(eviewer), H(erald) | 1 char |
+| `target` | Single-letter role code: T(racker), A(rchitect), C(oder), R(eviewer), H(erald) | 1 char |
 | `state` | Transition in `FROM→TO` notation, using 3-letter state abbreviations | ~7 chars |
 | `delta` | What changed. Comma-separated facts. No articles, no filler. | ≤ 80 chars |
-| `focus` | What the target persona should prioritize. Imperative fragments. | ≤ 60 chars |
+| `focus` | What the target role should prioritize. Imperative fragments. | ≤ 60 chars |
 
 **State abbreviations**: IDL (IDLE), MAP (MAPPING), DES (DESIGNING), SCF (SCAFFOLDING), IMP (IMPLEMENTING), REV (REVIEWING), STG (STAGING), COM (COMMITTED), FAI (FAILED).
 
-**Example — Tracker to Architect:**
+**Example — Analyst to Architect:**
 ```
 →A|MAP→DES|5 files mapped, cobra cmd/, go1.22, no lazygo.yml|spec from template, scanner type, high crit
 ```
 
-**Example — Reviewer PASS:**
+**Example — Auditor PASS:**
 ```
-→H|REV→STG|all checks pass, 0 findings, safePath verified|stage for commit, conventional msg
+→K|REV→STG|all checks pass, 0 findings, safePath verified|stage for commit, conventional msg
 ```
 
-**Example — Reviewer REJECT to Coder:**
+**Example — Auditor REJECT to Engineer:**
 ```
 →C|REV→IMP|REJECT: hasher.go L47 os.ReadFile on untrusted size, need streaming hash|fix hasher.go, keep verify flow, re-submit
 ```
@@ -202,14 +202,14 @@ This spec is committed to the repository before either arm runs. Neither arm's A
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | string | yes | Sequential ID: `KRX-001`, `KRX-002`, ... |
-| `from` | string | yes | Single-letter origin persona code |
-| `to` | string | yes | Single-letter target persona code |
+| `from` | string | yes | Single-letter origin role code |
+| `to` | string | yes | Single-letter target role code |
 | `st` | string | yes | State transition `FROM→TO` |
 | `v` | object | no | Structured variables relevant to the transition. Key names abbreviated. |
 | `s` | string | yes | Summary. ≤ 120 chars. Compressed natural language (caveman-tier). |
 | `refs` | array | no | File paths referenced. Does not include file content — content is in the context window. |
 
-**Example — Reviewer REJECT:**
+**Example — Auditor REJECT:**
 ```json
 {
   "id": "KRX-005",
@@ -244,7 +244,7 @@ gosec -quiet ./...
 go test -race -count=1 ./...
 ```
 
-### 5.2 Manual Security Audit (Reviewer persona)
+### 5.2 Manual Security Audit (Auditor role)
 
 | ID | Check | Pass condition |
 |----|-------|----------------|
@@ -287,13 +287,13 @@ Counting method depends on runtime:
 Each arm maintains a transition log — a CSV with one row per state transition:
 
 ```csv
-arm,transition_id,from_state,to_state,persona,input_tokens,output_tokens,verdict,notes
-ARM-M,1,IDL,MAP,Tracker,1200,340,,initial mapping
+arm,transition_id,from_state,to_state,role,input_tokens,output_tokens,verdict,notes
+ARM-M,1,IDL,MAP,Analyst,1200,340,,initial mapping
 ARM-M,2,MAP,DES,Architect,1540,180,,spec acknowledged
-ARM-M,3,DES,IMP,Coder,1720,2800,,full implementation
-ARM-M,4,IMP,REV,Reviewer,4520,600,PASS,all checks passed
-ARM-M,5,REV,STG,Herald,5120,120,,staged for commit
-ARM-M,6,STG,COM,Herald,5240,80,,user approved
+ARM-M,3,DES,IMP,Engineer,1720,2800,,full implementation
+ARM-M,4,IMP,REV,Auditor,4520,600,PASS,all checks passed
+ARM-M,5,REV,STG,Kerux,5120,120,,staged for commit
+ARM-M,6,STG,COM,Kerux,5240,80,,user approved
 ```
 
 ### 6.3 Execution Protocol
@@ -315,7 +315,7 @@ ARM-J runs first to avoid contamination: if the model "remembers" an efficient s
 | Model learning across arms | Fresh session per run. No conversation history carryover. |
 | Spec interpretation variance | Pre-authored control spec with unambiguous pseudocode. |
 | Token counting imprecision | Use API token counts where available. Flag estimates. |
-| Reviewer subjectivity | Security baseline is a binary checklist, not a judgement call. |
+| Auditor subjectivity | Security baseline is a binary checklist, not a judgement call. |
 
 ---
 
@@ -355,9 +355,9 @@ Even if H₁ is confirmed (markers cheaper gross), the rejection overhead must b
 | D-1 | Control `spec_projeto.md` for `sigcheck` | Markdown | Author (manual, pre-experiment) |
 | D-2 | ARM-J transition log | CSV | Kerux (during ARM-J runs) |
 | D-3 | ARM-M transition log | CSV | Kerux (during ARM-M runs) |
-| D-4 | ARM-J delivered code | Go source (`sigcheck-arm-j/`) | Coder persona |
-| D-5 | ARM-M delivered code | Go source (`sigcheck-arm-m/`) | Coder persona |
-| D-6 | Security baseline results | Checklist (pass/fail per check, per arm) | Reviewer persona + automated tools |
+| D-4 | ARM-J delivered code | Go source (`sigcheck-arm-j/`) | Engineer role |
+| D-5 | ARM-M delivered code | Go source (`sigcheck-arm-m/`) | Engineer role |
+| D-6 | Security baseline results | Checklist (pass/fail per check, per arm) | Auditor role + automated tools |
 | D-7 | Benchmark report | Markdown | Author (post-experiment analysis) |
 
 ### 8.1 Benchmark Report Structure
@@ -419,10 +419,10 @@ No CI pipeline for this spec — it's an experiment, not a software project. Val
 
 ## 10. Scope Boundaries
 
-**IN scope:** Measuring token efficiency of inter-persona packet formats within a single Kerux session on a controlled Go project.
+**IN scope:** Measuring token efficiency of inter-role packet formats within a single Kerux session on a controlled Go project.
 
 **OUT of scope:**
-- Evaluating the Kerux orchestrator itself (personas, flow, rules) — that's the consolidation spec's domain.
+- Evaluating the Kerux orchestrator itself (roles, flow, rules) — that's the consolidation spec's domain.
 - Comparing LLM models — same model in both arms.
 - Measuring boot-time token cost of `.kerux/` files — that's a separate experiment (caveman-compress for instruction files).
 - Cross-session persistence formats — both arms run in single sessions.

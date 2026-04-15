@@ -10,10 +10,10 @@ Kerux uses the following markers to map the domain:
 
 ## 📁 Hierarchy (follows: `rules/memory-rules.md`)
 1. **Primary**: All files in the current active domain (determined by task).
-2. **References**: Documentation identified by `Tracker`.
+2. **References**: Documentation identified by `Analyst`.
 
 ## 🧹 Pruning Logic
-- **Delta Focus**: After every persona turn, discard raw task logs that have been summarized in the handoff.
+- **Delta Focus**: After every role turn, discard raw task logs that have been summarized in the handoff.
 - **Threshold**: If context exceeds TOKEN_THRESHOLD (`rules/runtime-contract.md`),
   invoke `skills/memory-compression.md`.
 - **Ignore**: Always exclude heavy binary paths or known `.gitignore` matches.

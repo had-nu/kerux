@@ -13,9 +13,9 @@
 
 | Term | Definition |
 |------|-----------|
-| **Herald** | Kerux core — the orchestrator identity that routes traffic between personas. |
-| **Persona** | A scoped agent role (Architect, Coder, Reviewer, Tracker) with defined inputs, outputs, and constraints. |
-| **Packet** | The structured handoff unit between personas. Currently undefined — this spec formalizes it. |
+| **Kerux** | Kerux core — the orchestrator identity that routes traffic between roles. |
+| **Role** | A scoped agent role (Architect, Engineer, Auditor, Analyst) with defined inputs, outputs, and constraints. |
+| **Packet** | The structured handoff unit between roles. Currently undefined — this spec formalizes it. |
 | **Flow State** | A named stage in the development cycle with an owner, entry condition, and exit artifact. |
 | **Runtime** | The LLM environment executing Kerux (Gemini, Claude, local agent, API). |
 | **SPEC** | The `spec_projeto.md` — the source of truth for any project-level task. |
@@ -28,10 +28,10 @@
 The Kerux audit identified five categories of structural debt:
 
 1. **Redundancy**: 4 files duplicate content that exists elsewhere, inflating boot-time token cost by ~30%.
-2. **Undefined contracts**: The `<packet>` handoff format is referenced in 4 files but never specified. Personas cannot validate what they receive.
+2. **Undefined contracts**: The `<packet>` handoff format is referenced in 4 files but never specified. Roles cannot validate what they receive.
 3. **Linear pipeline assumption**: The flow handles the happy path only. Rejection, rollback, spec incompleteness, and concurrent access have no defined behaviour.
 4. **Runtime coupling**: Memory management, token thresholds, and attention hints are hardcoded for Gemini. The system cannot run on Claude or stateless APIs without modification.
-5. **Ecosystem drift**: The Reviewer lacks supply chain and envelope checks despite the owner's established work in those areas. The Tracker doesn't parse Go-specific metadata. The SPEC template is referenced via an absolute `file:///` URI.
+5. **Ecosystem drift**: The Auditor lacks supply chain and envelope checks despite the owner's established work in those areas. The Analyst doesn't parse Go-specific metadata. The SPEC template is referenced via an absolute `file:///` URI.
 
 The correction converts Kerux from a well-structured intent document into a functional orchestrator specification.
 
@@ -42,10 +42,10 @@ The correction converts Kerux from a well-structured intent document into a func
 | ID | Goal | Measurable Outcome |
 |----|------|--------------------|
 | G1 | Zero content duplication across `.kerux/` | Every paragraph of instructional text exists in exactly one file. |
-| G2 | Every persona handoff uses a validated packet schema | `packet-schema.md` exists and is referenced by all persona files. |
+| G2 | Every role handoff uses a validated packet schema | `packet-schema.md` exists and is referenced by all role files. |
 | G3 | Flow handles rejection, rollback, and spec incompleteness | `flow-states.md` defines transitions for all identified failure modes. |
 | G4 | Runtime-agnostic operation | No file references a specific LLM provider by name. A `runtime-contract.md` defines the abstraction. |
-| G5 | Ecosystem-aligned audit capabilities | Reviewer checks supply chain and JSON envelope compatibility. Tracker parses `go.mod` and `lazygo.yml`. |
+| G5 | Ecosystem-aligned audit capabilities | Auditor checks supply chain and JSON envelope compatibility. Analyst parses `go.mod` and `lazygo.yml`. |
 | G6 | SPEC template is portable | Template lives inside `.kerux/templates/` with a relative path reference. |
 
 ---
@@ -57,11 +57,11 @@ The correction converts Kerux from a well-structured intent document into a func
 ```
 .kerux/
 ├── kerux.md
-├── personas/
+├── roles/
 │   ├── architect.md
-│   ├── coder.md
-│   ├── reviewer.md
-│   └── tracker.md
+│   ├── engineer.md
+│   ├── auditor.md
+│   └── analyst.md
 ├── rules/
 │   ├── commandments.md
 │   ├── edicts.md
@@ -91,11 +91,11 @@ The correction converts Kerux from a well-structured intent document into a func
 ├── kerux.md                          [MODIFY] — revised flow reference, scope section
 ├── VERSION                           [NEW]    — orchestrator version tracking
 │
-├── personas/
+├── roles/
 │   ├── architect.md                  [MODIFY] — relative template path
-│   ├── coder.md                      [MODIFY] — spec-incomplete escape hatch
-│   ├── reviewer.md                   [MODIFY] — supply chain + envelope checks
-│   └── tracker.md                    [MODIFY] — go.mod, lazygo.yml, SPEC header parsing
+│   ├── engineer.md                      [MODIFY] — spec-incomplete escape hatch
+│   ├── auditor.md                   [MODIFY] — supply chain + envelope checks
+│   └── analyst.md                    [MODIFY] — go.mod, lazygo.yml, SPEC header parsing
 │
 ├── rules/
 │   ├── commandments.md               [KEEP]   — no changes
@@ -133,7 +133,7 @@ The correction converts Kerux from a well-structured intent document into a func
 |-----------|-------|-------|
 | **DELETE** | 4 | `skills/core-orchestration.md`, `skills/maintenance-skills.md`, `skills/agent-memory.md`, `skills/README.md` |
 | **NEW** | 8 | `VERSION`, `flow-states.md`, `packet-schema.md`, `error-taxonomy.md`, `runtime-contract.md`, `templates/SPEC_TEMPLATE.md`, `memory/lessons.md`, `memory/session.json` |
-| **MODIFY** | 11 | `kerux.md`, `architect.md`, `coder.md`, `reviewer.md`, `tracker.md`, `memory-rules.md`, `kerux-boot.md`, `kerux-dispatch.md`, `context-maintenance.md`, `memory-compression.md`, `agent-todo.md`, `code-review/protocol.md` |
+| **MODIFY** | 11 | `kerux.md`, `architect.md`, `engineer.md`, `auditor.md`, `analyst.md`, `memory-rules.md`, `kerux-boot.md`, `kerux-dispatch.md`, `context-maintenance.md`, `memory-compression.md`, `agent-todo.md`, `code-review/protocol.md` |
 | **KEEP** | 4 | `commandments.md`, `edicts.md`, `web-browser/protocol.md`, `web-search/protocol.md` |
 
 ---
@@ -192,7 +192,7 @@ Phase 1 is mechanical. No design decisions. Pure deletion and content migration.
 
 ## Usage
 - **Kerux**: Initialize at boot. Load from `memory/session.json` if available.
-- **Coder/Architect**: Update when state changes.
+- **Engineer/Architect**: Update when state changes.
 - **Handoff**: Include the delta of the todo list in the packet.
 
 ## Storage
@@ -206,20 +206,20 @@ When PERSISTENCE_MODE=none (see runtime-contract.md), tasks exist only in-sessio
 
 ### 5.1 NEW `rules/packet-schema.md`
 
-This is the most-referenced undefined contract. Every persona file mentions packets. This file defines the shape.
+This is the most-referenced undefined contract. Every role file mentions packets. This file defines the shape.
 
 ```markdown
 # Packet Schema v1
 
-> **Authority**: This schema is the contract for all inter-persona communication.
-> Every packet sent or received by any persona MUST conform to this structure.
+> **Authority**: This schema is the contract for all inter-role communication.
+> Every packet sent or received by any role MUST conform to this structure.
 
 ## Schema
 
 <packet>
   <id>Unique task identifier (format: KRX-YYYYMMDD-NNN)</id>
-  <origin>Sending persona name</origin>
-  <target>Receiving persona name</target>
+  <origin>Sending role name</origin>
+  <target>Receiving role name</target>
   <state>Current flow state (reference: rules/flow-states.md)</state>
   <intent>Imperative verb phrase: what the receiver must do</intent>
   <context>
@@ -235,8 +235,8 @@ This is the most-referenced undefined contract. Every persona file mentions pack
 
 ## Validation Rules
 
-1. `id` must be unique within a session. Kerux assigns IDs; personas do not.
-2. `origin` and `target` must be valid persona names: Herald, Architect, Coder, Reviewer, Tracker.
+1. `id` must be unique within a session. Kerux assigns IDs; roles do not.
+2. `origin` and `target` must be valid role names: Kerux, Architect, Engineer, Auditor, Analyst.
 3. `state` must be a valid state from `flow-states.md`.
 4. `intent` must start with an imperative verb (map, design, implement, audit, scaffold).
 5. `context.files` paths must be verified (ls/stat) before inclusion. No stale paths.
@@ -244,12 +244,12 @@ This is the most-referenced undefined contract. Every persona file mentions pack
 
 ## Compact Mode
 
-For simple handoffs where full context is unnecessary (e.g., Reviewer PASS → Herald):
+For simple handoffs where full context is unnecessary (e.g., Auditor PASS → Kerux):
 
 <packet>
   <id>KRX-20260415-007</id>
-  <origin>Reviewer</origin>
-  <target>Herald</target>
+  <origin>Auditor</origin>
+  <target>Kerux</target>
   <state>REVIEWED</state>
   <intent>approve implementation</intent>
   <summary>All blueprint items verified. No security findings. PASS.</summary>
@@ -269,13 +269,13 @@ Replaces the implicit linear pipeline with an explicit state machine.
 ## States
 
 ### IDLE
-- **Owner**: Herald
+- **Owner**: Kerux
 - **Entry**: Session boot complete, or previous task committed/abandoned.
 - **Exit**: User provides a task. → MAPPING
 
 ### MAPPING
-- **Owner**: Tracker
-- **Entry**: Herald dispatches a mapping packet.
+- **Owner**: Analyst
+- **Entry**: Kerux dispatches a mapping packet.
 - **Exit artifacts**: Context Packet (file paths, dependencies, project metadata).
 - **Transitions**:
   - Success → DESIGNING
@@ -283,14 +283,14 @@ Replaces the implicit linear pipeline with an explicit state machine.
 
 ### DESIGNING
 - **Owner**: Architect
-- **Entry**: Context Packet received from Tracker.
+- **Entry**: Context Packet received from Analyst.
 - **Exit artifacts**: `spec_projeto.md` conforming to `templates/SPEC_TEMPLATE.md`.
 - **Transitions**:
   - Success → SCAFFOLDING (if new project) or IMPLEMENTING (if existing project)
   - Failure (template unavailable, conflicting requirements) → IDLE + user escalation
 
 ### SCAFFOLDING
-- **Owner**: Coder (under Herald supervision)
+- **Owner**: Engineer (under Kerux supervision)
 - **Entry**: New project flag set in spec. `lazygo.yml` generated.
 - **Exit artifacts**: Project directory created, `spec_projeto.md` copied to root.
 - **Transitions**:
@@ -298,7 +298,7 @@ Replaces the implicit linear pipeline with an explicit state machine.
   - Failure (lazy.go error, path conflict) → DESIGNING + error context
 
 ### IMPLEMENTING
-- **Owner**: Coder
+- **Owner**: Engineer
 - **Entry**: `spec_projeto.md` exists and is current.
 - **Exit artifacts**: Modified/created files as listed in blueprint.
 - **Transitions**:
@@ -307,20 +307,20 @@ Replaces the implicit linear pipeline with an explicit state machine.
   - Failure (build error, test failure) → self-retry (max 2), then DESIGNING
 
 ### REVIEWING
-- **Owner**: Reviewer
-- **Entry**: Coder handoff packet with change summary.
+- **Owner**: Auditor
+- **Entry**: Engineer handoff packet with change summary.
 - **Exit artifacts**: Verdict (PASS | REJECT | COMMENT) with evidence.
 - **Transitions**:
   - PASS → STAGING
   - COMMENT → STAGING (with notes attached)
   - REJECT → route based on rejection type:
-    - Blueprint deviation → IMPLEMENTING (Coder fixes)
+    - Blueprint deviation → IMPLEMENTING (Engineer fixes)
     - Architectural flaw → DESIGNING (Architect revises)
     - Security finding → DESIGNING (mandatory — security issues require spec-level response)
 
 ### STAGING
-- **Owner**: Herald
-- **Entry**: Reviewer PASS or COMMENT.
+- **Owner**: Kerux
+- **Entry**: Auditor PASS or COMMENT.
 - **Exit artifacts**: Commit message (Conventional Commits format).
 - **Action**: Present diff summary + proposed commit message to user.
 - **Transitions**:
@@ -329,25 +329,25 @@ Replaces the implicit linear pipeline with an explicit state machine.
   - User abandons → IDLE
 
 ### COMMITTED
-- **Owner**: Herald
+- **Owner**: Kerux
 - **Entry**: User explicit approval in current turn.
 - **Action**: Execute git add + git commit. Never git push (user does this manually).
 - **Transitions**: → IDLE
 
 ### FAILED
-- **Owner**: Herald
+- **Owner**: Kerux
 - **Entry**: Any unrecoverable error (missing tools, corrupt state, repeated failures).
 - **Action**: Report full error context to user. Suggest manual intervention.
 - **Transitions**: → IDLE (after user acknowledgment)
 
 ## Invariants
 
-1. Only one persona holds the lock at any time. No concurrent persona execution.
+1. Only one role holds the lock at any time. No concurrent role execution.
 2. State transitions are logged in the session todo (skills/agent-todo.md).
-3. Every REJECT must include the target state for the rollback — the Reviewer decides
-   whether the fix is a Coder task or an Architect task.
+3. Every REJECT must include the target state for the rollback — the Auditor decides
+   whether the fix is a Engineer task or an Architect task.
 4. STAGING → COMMITTED requires user approval in the CURRENT turn (Commandment C1).
-5. The IMPLEMENTING → DESIGNING (BLOCKED) transition is the Coder's escape hatch
+5. The IMPLEMENTING → DESIGNING (BLOCKED) transition is the Engineer's escape hatch
    for spec incompleteness. It is not a failure — it is correct behaviour.
 ```
 
@@ -382,7 +382,7 @@ Context is organized into persistent layers (follows the Layer model in M1):
 # Error Taxonomy v1
 
 > Defines failure categories and the expected response for each.
-> Personas do not improvise error handling — they match the situation to this taxonomy.
+> Roles do not improvise error handling — they match the situation to this taxonomy.
 
 ## Severity Levels
 
@@ -394,34 +394,34 @@ Context is organized into persistent layers (follows the Layer model in M1):
   Do not attempt workarounds.
 
 ### BLOCKING
-- **Definition**: The current persona cannot proceed, but another persona or the user can resolve it.
-- **Examples**: Spec incomplete (Coder → Architect), dependency not declared (Coder → Architect),
-  ambiguous user intent (any persona → Herald → user).
-- **Response**: Emit a BLOCKED packet to Herald with the blocking reason and suggested resolver.
-  Herald routes to the appropriate persona or asks the user.
+- **Definition**: The current role cannot proceed, but another role or the user can resolve it.
+- **Examples**: Spec incomplete (Engineer → Architect), dependency not declared (Engineer → Architect),
+  ambiguous user intent (any role → Kerux → user).
+- **Response**: Emit a BLOCKED packet to Kerux with the blocking reason and suggested resolver.
+  Kerux routes to the appropriate role or asks the user.
 
 ### DEGRADED
 - **Definition**: The task can continue but with reduced quality or missing optional features.
-- **Examples**: Web search unavailable (Tracker proceeds with local-only mapping),
+- **Examples**: Web search unavailable (Analyst proceeds with local-only mapping),
   PERSISTENCE_MODE=none (memory compression skipped, session state in-context only).
 - **Response**: Continue execution. Log the degradation in the handoff packet summary.
   Do not escalate unless the degradation compounds.
 
 ### RECOVERABLE
-- **Definition**: A transient failure that the current persona can retry.
+- **Definition**: A transient failure that the current role can retry.
 - **Examples**: Shell command timeout, file lock contention, git index.lock stale.
 - **Response**: Retry once. If second attempt fails, escalate to BLOCKING.
 
 ## Conflict Resolution
 
 ### File Conflict
-Two personas want to modify the same file (e.g., Architect updates spec while Coder is implementing).
-- **Resolution**: The persona with the lock (current flow state owner) has priority.
-  The other persona's changes are queued as a follow-up packet.
+Two roles want to modify the same file (e.g., Architect updates spec while Engineer is implementing).
+- **Resolution**: The role with the lock (current flow state owner) has priority.
+  The other role's changes are queued as a follow-up packet.
 
 ### Verdict Disagreement
-Reviewer rejects, but the rejection rationale contradicts the spec.
-- **Resolution**: Herald presents both the spec text and the rejection rationale to the user.
+Auditor rejects, but the rejection rationale contradicts the spec.
+- **Resolution**: Kerux presents both the spec text and the rejection rationale to the user.
   User decides. This is not automatable.
 ```
 
@@ -441,7 +441,7 @@ Reviewer rejects, but the rejection rationale contradicts the spec.
 
 ## Optional Capabilities
 4. Persistent file storage between sessions (enables session.json / lessons.md).
-5. Web search (enables Tracker web intelligence skill).
+5. Web search (enables Analyst web intelligence skill).
 6. Web browsing (enables visual verification skill).
 
 ## Adaptation Variables
@@ -486,8 +486,8 @@ Runtime detection is silent. The user sees only the boot greeting.
 1. **Replace** §Organic Flow numbered list with a reference to `rules/flow-states.md`:
    ```
    ## Organic Flow (DevSecOps)
-   The Herald routes traffic through the state machine defined in `rules/flow-states.md`.
-   Each state has an owning persona, entry conditions, exit artifacts, and failure paths.
+   The Kerux routes traffic through the state machine defined in `rules/flow-states.md`.
+   Each state has an owning role, entry conditions, exit artifacts, and failure paths.
    ```
 
 2. **Add** §Scope section after §Boot Sequence:
@@ -504,18 +504,18 @@ Runtime detection is silent. The user sees only the boot greeting.
 3. **Replace** §Traffic Protocol with a reference to `rules/packet-schema.md`:
    ```
    ## Traffic Protocol
-   All inter-persona communication uses the packet format defined in `rules/packet-schema.md`.
+   All inter-role communication uses the packet format defined in `rules/packet-schema.md`.
    ```
 
 4. **Add** to §Red Lines:
    ```
-   - **NO UNDEFINED HANDOFFS**: Every persona transition must use a validated packet.
+   - **NO UNDEFINED HANDOFFS**: Every role transition must use a validated packet.
    - **NO STALE STATE**: If the flow state doesn't match the expected entry condition, halt and report.
    ```
 
 5. **Update** version footer: `Kerux v3.0 | Consolidated`
 
-### 6.2 MODIFY `personas/architect.md`
+### 6.2 MODIFY `roles/architect.md`
 
 **Changes**:
 
@@ -531,7 +531,7 @@ Runtime detection is silent. The user sees only the boot greeting.
      CI check or test that enforces it. If no check exists, flag it as a gap.
    ```
 
-### 6.3 MODIFY `personas/coder.md`
+### 6.3 MODIFY `roles/engineer.md`
 
 **Changes**:
 
@@ -540,7 +540,7 @@ Runtime detection is silent. The user sees only the boot greeting.
    5. **Blocked Path**: If during implementation the spec is incomplete, ambiguous,
       or contradicted by the actual codebase:
       - Do NOT improvise outside the blueprint.
-      - Emit a BLOCKED packet to Herald with:
+      - Emit a BLOCKED packet to Kerux with:
         - The specific spec section that is incomplete/wrong.
         - What the codebase actually requires.
         - A suggested amendment (informational, not authoritative — the Architect decides).
@@ -555,7 +555,7 @@ Runtime detection is silent. The user sees only the boot greeting.
 
 3. **Renumber** subsequent steps.
 
-### 6.4 MODIFY `personas/reviewer.md`
+### 6.4 MODIFY `roles/auditor.md`
 
 **Changes**:
 
@@ -585,7 +585,7 @@ Runtime detection is silent. The user sees only the boot greeting.
      - REJECT → DESIGNING: if the fix requires a spec amendment (architectural flaw, security finding).
    ```
 
-### 6.5 MODIFY `personas/tracker.md`
+### 6.5 MODIFY `roles/analyst.md`
 
 **Changes**:
 
@@ -645,9 +645,9 @@ Runtime detection is silent. The user sees only the boot greeting.
 2. **Add** §State Validation:
    ```
    ## State Validation
-   Before dispatching to any persona, Kerux verifies:
+   Before dispatching to any role, Kerux verifies:
    1. The current flow state (from flow-states.md) allows this transition.
-   2. The target persona's entry conditions are met.
+   2. The target role's entry conditions are met.
    3. If conditions are not met, Kerux does NOT dispatch.
       Instead, it emits a BLOCKING error to the user explaining the gap.
    ```
@@ -688,7 +688,7 @@ Expand the minimal checklist into a structured protocol:
 ```markdown
 # Skill: Code Review Protocol
 
-Standard checklist for the Reviewer persona. Applied at REVIEWING state.
+Standard checklist for the Auditor role. Applied at REVIEWING state.
 
 ## Checklist
 
@@ -778,10 +778,10 @@ Each criterion maps to a Goal from §2.
 | ID | Criterion | Verification Method |
 |----|-----------|-------------------|
 | AC-1 (G1) | `grep -r` across `.kerux/` returns no paragraph-level duplicate content. | Manual grep + diff after implementation. |
-| AC-2 (G2) | Every persona file references `rules/packet-schema.md`. No persona defines its own handoff format. | Grep for "packet-schema" in all persona files. |
+| AC-2 (G2) | Every role file references `rules/packet-schema.md`. No role defines its own handoff format. | Grep for "packet-schema" in all role files. |
 | AC-3 (G3) | `flow-states.md` defines transitions for: REJECT routing, BLOCKED (spec incomplete), SCAFFOLDING failure, concurrent access prevention. | Manual review of state machine completeness against FM-1 through FM-4 from the audit. |
 | AC-4 (G4) | `grep -ri "gemini\|claude\|openai\|anthropic\|google"` across `.kerux/` returns zero hits (excluding this spec and the audit). | Automated grep. |
-| AC-5 (G5) | Reviewer checklist includes SCA and envelope compatibility sections. Tracker playbook includes go.mod, lazygo.yml, and SPEC header parsing. | Manual review of persona files. |
+| AC-5 (G5) | Auditor checklist includes SCA and envelope compatibility sections. Analyst playbook includes go.mod, lazygo.yml, and SPEC header parsing. | Manual review of role files. |
 | AC-6 (G6) | No file in `.kerux/` contains a `file:///` URI. SPEC template path is relative. | Grep for `file:///`. |
 | AC-7 | All 4 files on the kill list are absent from the tree. | `ls` verification. |
 | AC-8 | `VERSION` file exists and contains a valid semver string. | `cat .kerux/VERSION`. |
@@ -821,9 +821,9 @@ check "agent-memory.md deleted"          "! test -f .kerux/skills/agent-memory.m
 check "README.md deleted"               "! test -f .kerux/skills/README.md"
 
 # AC-2: Packet schema referenced
-check "architect refs packet-schema"     "grep -q 'packet-schema' .kerux/personas/architect.md"
-check "coder refs packet-schema"         "grep -q 'packet-schema' .kerux/personas/coder.md"
-check "reviewer refs packet-schema"      "grep -q 'packet-schema' .kerux/personas/reviewer.md"
+check "architect refs packet-schema"     "grep -q 'packet-schema' .kerux/roles/architect.md"
+check "engineer refs packet-schema"         "grep -q 'packet-schema' .kerux/roles/engineer.md"
+check "auditor refs packet-schema"      "grep -q 'packet-schema' .kerux/roles/auditor.md"
 check "dispatch refs packet-schema"      "grep -q 'packet-schema' .kerux/skills/kerux-dispatch.md"
 
 # AC-4: No provider names
@@ -859,8 +859,8 @@ Execute phases in sequence. Each phase is independently committable.
 |-------|---------------|---------------|------------|
 | **P0** | `refactor(kerux): eliminate redundant skill files` | DELETE 4, MODIFY 2 (memory-rules.md, agent-todo.md) | Nothing |
 | **P1** | `feat(kerux): define packet schema and flow state machine` | NEW 4 (packet-schema, flow-states, error-taxonomy, runtime-contract) | P0 |
-| **P2** | `refactor(kerux): revise core files for state-aware flow` | MODIFY 7 (kerux.md, boot, dispatch, context-maintenance, compression, architect, coder) | P1 |
-| **P3** | `feat(kerux): upgrade reviewer and tracker for ecosystem alignment` | MODIFY 3 (reviewer, tracker, code-review/protocol) | P1 |
+| **P2** | `refactor(kerux): revise core files for state-aware flow` | MODIFY 7 (kerux.md, boot, dispatch, context-maintenance, compression, architect, engineer) | P1 |
+| **P3** | `feat(kerux): upgrade auditor and analyst for ecosystem alignment` | MODIFY 3 (auditor, analyst, code-review/protocol) | P1 |
 | **P4** | `feat(kerux): add version tracking, templates dir, memory skeleton` | NEW 4 (VERSION, templates/SPEC_TEMPLATE, memory/lessons, memory/session.json) | P0 |
 
 P2 and P3 are independent of each other — they can be parallelized or reordered.

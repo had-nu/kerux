@@ -402,7 +402,7 @@ func safePath(path, baseDir string) bool:
     return strings.HasPrefix(resolved, filepath.Clean(baseDir))
 ```
 
-### Guardrails (for Reviewer)
+### Guardrails (for Auditor)
 
 | ID | Check | Pass condition |
 |----|-------|----------------|

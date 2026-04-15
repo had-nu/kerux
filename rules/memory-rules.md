@@ -11,7 +11,7 @@ Context is organized into three distinct layers to prevent "noise saturation":
 ## 🪙 M2: Token Discipline
 - **Signal-to-Noise Ratio**: Prefer pseudocode for explanation and shorthand for handoffs.
 - **Selective Reading**: Use `grep` and `sed` for targeted file reads instead of reading whole files > 300 lines.
-- **Chunking**: Break complex reasoning into persona-specific segments to keep individual prompt sizes low.
+- **Chunking**: Break complex reasoning into role-specific segments to keep individual prompt sizes low.
 
 ## 🧹 M3: Adaptive Pruning
 Kerux must trigger context consolidation when the session exceeds TOKEN_THRESHOLD

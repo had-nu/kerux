@@ -1,6 +1,6 @@
 # Skill: Code Review Protocol
 
-Standard checklist for the Reviewer persona. Applied at REVIEWING state.
+Standard checklist for the Auditor role. Applied at REVIEWING state.
 
 ## Checklist
 

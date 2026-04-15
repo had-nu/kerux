@@ -9,7 +9,7 @@
 
 ## Usage
 - **Kerux**: Initialize at boot. Load from `memory/session.json` if available.
-- **Coder/Architect**: Update when state changes.
+- **Engineer/Architect**: Update when state changes.
 - **Handoff**: Include the delta of the todo list in the packet.
 
 ## Storage

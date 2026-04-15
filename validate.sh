@@ -24,9 +24,9 @@ check "agent-memory.md deleted"          "! test -f skills/agent-memory.md"
 check "README.md deleted"               "! test -f skills/README.md"
 
 # AC-2: Packet schema referenced
-check "architect refs packet-schema"     "grep -q 'packet-schema' personas/architect.md"
-check "coder refs packet-schema"         "grep -q 'packet-schema' personas/coder.md"
-check "reviewer refs packet-schema"      "grep -q 'packet-schema' personas/reviewer.md"
+check "architect refs packet-schema"     "grep -q 'packet-schema' roles/architect.md"
+check "engineer refs packet-schema"         "grep -q 'packet-schema' roles/engineer.md"
+check "auditor refs packet-schema"      "grep -q 'packet-schema' roles/auditor.md"
 check "dispatch refs packet-schema"      "grep -q 'packet-schema' skills/kerux-dispatch.md"
 
 # AC-4: No provider names

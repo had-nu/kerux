@@ -1,14 +1,14 @@
 # Packet Schema v1
 
-> **Authority**: This schema is the contract for all inter-persona communication.
-> Every packet sent or received by any persona MUST conform to this structure.
+> **Authority**: This schema is the contract for all inter-role communication.
+> Every packet sent or received by any role MUST conform to this structure.
 
 ## Schema
 
 <packet>
   <id>Unique task identifier (format: KRX-YYYYMMDD-NNN)</id>
-  <origin>Sending persona name</origin>
-  <target>Receiving persona name</target>
+  <origin>Sending role name</origin>
+  <target>Receiving role name</target>
   <state>Current flow state (reference: rules/flow-states.md)</state>
   <intent>Imperative verb phrase: what the receiver must do</intent>
   <context>
@@ -24,8 +24,8 @@
 
 ## Validation Rules
 
-1. `id` must be unique within a session. Kerux assigns IDs; personas do not.
-2. `origin` and `target` must be valid persona names: Herald, Architect, Coder, Reviewer, Tracker.
+1. `id` must be unique within a session. Kerux assigns IDs; roles do not.
+2. `origin` and `target` must be valid role names: Kerux, Architect, Engineer, Auditor, Analyst.
 3. `state` must be a valid state from `flow-states.md`.
 4. `intent` must start with an imperative verb (map, design, implement, audit, scaffold).
 5. `context.files` paths must be verified (ls/stat) before inclusion. No stale paths.
@@ -33,12 +33,12 @@
 
 ## Compact Mode
 
-For simple handoffs where full context is unnecessary (e.g., Reviewer PASS → Herald):
+For simple handoffs where full context is unnecessary (e.g., Auditor PASS → Kerux):
 
 <packet>
   <id>KRX-20260415-007</id>
-  <origin>Reviewer</origin>
-  <target>Herald</target>
+  <origin>Auditor</origin>
+  <target>Kerux</target>
   <state>REVIEWED</state>
   <intent>approve implementation</intent>
   <summary>All blueprint items verified. No security findings. PASS.</summary>

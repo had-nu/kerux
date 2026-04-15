@@ -15,5 +15,5 @@
 - **Maintain Docs**: Do not remove existing docstrings or comments unless explicitly refactoring them.
 
 ## 📉 C4: Token Discipline
-- **Signal Only**: Avoid conversational filler in persona outputs.
+- **Signal Only**: Avoid conversational filler in role outputs.
 - **Compact Handoffs**: Use `<packet>` tags for structured data.

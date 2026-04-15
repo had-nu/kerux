@@ -1,7 +1,7 @@
 # Error Taxonomy v1
 
 > Defines failure categories and the expected response for each.
-> Personas do not improvise error handling — they match the situation to this taxonomy.
+> Roles do not improvise error handling — they match the situation to this taxonomy.
 
 ## Severity Levels
 
@@ -13,32 +13,32 @@
   Do not attempt workarounds.
 
 ### BLOCKING
-- **Definition**: The current persona cannot proceed, but another persona or the user can resolve it.
-- **Examples**: Spec incomplete (Coder → Architect), dependency not declared (Coder → Architect),
-  ambiguous user intent (any persona → Herald → user).
-- **Response**: Emit a BLOCKED packet to Herald with the blocking reason and suggested resolver.
-  Herald routes to the appropriate persona or asks the user.
+- **Definition**: The current role cannot proceed, but another role or the user can resolve it.
+- **Examples**: Spec incomplete (Engineer → Architect), dependency not declared (Engineer → Architect),
+  ambiguous user intent (any role → Kerux → user).
+- **Response**: Emit a BLOCKED packet to Kerux with the blocking reason and suggested resolver.
+  Kerux routes to the appropriate role or asks the user.
 
 ### DEGRADED
 - **Definition**: The task can continue but with reduced quality or missing optional features.
-- **Examples**: Web search unavailable (Tracker proceeds with local-only mapping),
+- **Examples**: Web search unavailable (Analyst proceeds with local-only mapping),
   PERSISTENCE_MODE=none (memory compression skipped, session state in-context only).
 - **Response**: Continue execution. Log the degradation in the handoff packet summary.
   Do not escalate unless the degradation compounds.
 
 ### RECOVERABLE
-- **Definition**: A transient failure that the current persona can retry.
+- **Definition**: A transient failure that the current role can retry.
 - **Examples**: Shell command timeout, file lock contention, git index.lock stale.
 - **Response**: Retry once. If second attempt fails, escalate to BLOCKING.
 
 ## Conflict Resolution
 
 ### File Conflict
-Two personas want to modify the same file (e.g., Architect updates spec while Coder is implementing).
-- **Resolution**: The persona with the lock (current flow state owner) has priority.
-  The other persona's changes are queued as a follow-up packet.
+Two roles want to modify the same file (e.g., Architect updates spec while Engineer is implementing).
+- **Resolution**: The role with the lock (current flow state owner) has priority.
+  The other role's changes are queued as a follow-up packet.
 
 ### Verdict Disagreement
-Reviewer rejects, but the rejection rationale contradicts the spec.
-- **Resolution**: Herald presents both the spec text and the rejection rationale to the user.
+Auditor rejects, but the rejection rationale contradicts the spec.
+- **Resolution**: Kerux presents both the spec text and the rejection rationale to the user.
   User decides. This is not automatable.

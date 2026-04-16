@@ -26,13 +26,13 @@ Kerux is a `.kerux/` directory inside your project root. It contains markdown fi
 
 Each role maps to a real engineering function. Kerux itself is the Lead — it doesn't write code or specs, it coordinates who does what and when.
 
-| Role | Function | Real-world equivalent |
-|------|----------|----------------------|
-| **Kerux** (Lead) | Coordinates the flow, routes work between roles, enforces rules, manages state transitions. | Tech Lead / Engineering Manager |
-| **Analyst** | Maps the codebase, gathers project metadata (`go.mod`, `lazygo.yml`), produces context packets. | Systems Analyst / CTI Analyst |
-| **Architect** | Designs the system, produces the `spec_projeto.md`, defines the blueprint for implementation. | Solutions Architect |
-| **Engineer** | Implements code against the spec. Owns the build, tests, and scaffolding. | Software Engineer |
-| **Auditor** | Verifies implementation against spec and security baseline. Issues PASS, REJECT, or COMMENT verdicts. | Security Auditor / QA Auditor |
+| Role | Function | Context scope |
+|------|----------|---------------|
+| **Kerux** (Lead) | Coordinates flow, routes work, enforces rules, manages state transitions. | Commandments, flow-states, packet-schema, session state. |
+| **Analyst** | Maps the codebase, gathers metadata (`go.mod`, `lazygo.yml`). | Structural scan output + metadata files. Discarded after handoff. |
+| **Architect** | Produces `spec_projeto.md` — the blueprint for implementation. | Analyst packet + user elicitation. Discarded after spec is authored. |
+| **Engineer** | Implements code against the spec. Owns build, tests, scaffolding. | Spec + go-security skill + existing code being modified. |
+| **Auditor** | Verifies implementation against spec + security baseline. | Spec Guardrails + code-review-protocol + Engineer's delta. |
 
 Roles are additive. New roles (Writer, Tester, Ops) can be introduced by adding a file to `roles/` and registering the role in the state machine — no existing files need to change.
 

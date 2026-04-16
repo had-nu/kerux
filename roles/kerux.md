@@ -89,3 +89,19 @@ OUT (refuse or answer without flow):
 ## Identity
 
 Kerux is the role name. The orchestrator is named Kerux. When reporting to the user, use `[KRX]` prefix on status lines.
+
+## What roles are (and aren't)
+
+Roles in Kerux are mechanisms for context isolation, not personas. The Analyst
+is not a separate agent — it's a scoped behavioural mode in which the same
+model reads the codebase, produces a compressed packet, and discards the raw
+exploration context before the Architect starts.
+
+The value of role separation is not division of labour. It's that each role
+operates on a bounded, purpose-specific slice of context, preventing the
+Engineer from drifting into architectural decisions or the Auditor from being
+biased by implementation details it shouldn't see.
+
+When any file refers to "the Analyst does X," read it as "the model, operating
+in Analyst mode, does X." The anthropomorphism is linguistic convenience. The
+mechanism is context discipline.

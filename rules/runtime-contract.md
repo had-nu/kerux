@@ -1,45 +1,93 @@
-# Runtime Contract v1
+# Runtime Contract
 
-> Defines what Kerux requires from its execution environment.
-> No file in .kerux/ may reference a specific LLM provider by name.
-> Adaptation is handled through the variables below.
+Defines what Kerux requires from its execution environment.
+No file in `.kerux/` references a specific LLM provider by name.
+Adaptation happens through the variables below.
 
 ## Required Capabilities
-1. File system read/write in the project workspace.
-2. Shell command execution: ls, find, grep, cat, head, go, git.
-3. Context window ≥ 100,000 tokens (operational minimum for boot + one task cycle).
+
+1. File system read/write in project workspace.
+2. Shell command execution: `ls`, `find`, `grep`, `cat`, `head`, `sed`, `go`, `git`.
+3. Context window ≥ 100,000 tokens (operational minimum: boot + one full task cycle).
+
+If any required capability is missing: FATAL at boot.
 
 ## Optional Capabilities
-4. Persistent file storage between sessions (enables session.json / lessons.md).
-5. Web search (enables Analyst web intelligence skill).
-6. Web browsing (enables visual verification skill).
+
+4. Persistent file storage between sessions (enables session.json, lessons.md).
+5. Web search (enables Analyst web intelligence when needed).
+6. Web browsing (enables visual verification for web projects).
+
+Missing optional capabilities → DEGRADED, not FATAL.
 
 ## Adaptation Variables
 
 ### TOKEN_THRESHOLD
+
 - **Purpose**: Trigger point for memory compression.
-- **Default**: 80% of available context window.
+- **Default**: 80000.
 - **Override**: Set at boot based on runtime detection.
+- **Guideline**: 80% of available context window, leaving 20% for active work.
 
 ### PERSISTENCE_MODE
-- **Values**: `file` | `memory` | `none`
-- `file`: Full persistence via session.json and lessons.md (local agent, IDE plugin).
-- `memory`: Runtime provides cross-session memory.
-  Skip file writes for lessons; use runtime memory API.
-- `none`: Stateless. All context is in-session only. Memory compression produces
-  a text block the user must paste into the next session.
+
+Values:
+
+**`file`** — Full file persistence.
+- `memory/session.json` and `memory/lessons.md` live on disk.
+- Typical for local agents, IDE plugins, CLI tools.
+- Enables resume across sessions via filesystem.
+
+**`memory`** — Runtime-provided cross-session memory.
+- Runtime has a memory API (hosted LLM with memory, or similar).
+- Skip file writes. Use runtime primitives.
+- Seed blocks and lessons live in runtime memory.
+
+**`none`** — Stateless.
+- No cross-session state.
+- Memory compression produces a paste-block for user.
+- All context lost at session end unless user copies.
 
 ### ATTENTION_HINTS
+
 - **Purpose**: Model-specific markers to emphasize critical content.
-- **Default**: Empty string (no hints).
-- **Override**: Set per-runtime if the model supports attention directives.
+- **Default**: empty string (no hints).
+- **Override**: set per-runtime if model supports attention directives.
+- **Usage**: prepend/append to high-priority instructions. Silent no-op when unsupported.
 
 ## Boot Detection
 
-At boot, `kerux-boot.md` probes the environment:
-1. Check shell availability: `which go && which git`
-2. Check file write: attempt to write/read a temp file in `.kerux/memory/`
-3. If file write fails → PERSISTENCE_MODE=none
-4. TOKEN_THRESHOLD: set by the hosting system or default to 80k.
+Performed silently by `skills/kerux-boot.md`:
 
-Runtime detection is silent. The user sees only the boot greeting.
+```bash
+# 1. Shell availability (FATAL if missing)
+which go && which git
+
+# 2. File write capability (determines PERSISTENCE_MODE)
+echo test > .kerux/memory/.probe && rm .kerux/memory/.probe
+# Success → PERSISTENCE_MODE=file
+# Fail (read-only FS, no memory dir) → PERSISTENCE_MODE=none
+
+# 3. Token threshold
+# If runtime exposes context window size: TOKEN_THRESHOLD = 0.8 * window
+# Else: default 80000
+
+# 4. Attention hints
+# Set only if runtime documentation confirms support
+# Default empty
+```
+
+## Invariants
+
+1. No role file mentions a specific LLM provider (Gemini, Claude, GPT, Llama, etc.).
+2. No hardcoded token counts outside this file.
+3. Runtime detection is silent. User sees only the boot greeting.
+4. Degradation is reported in status lines, not logged silently.
+5. The contract is the only abstraction layer. Downstream files consume the variables, not the runtime.
+
+## Extension Points
+
+When a new runtime is added:
+1. Document detection in `skills/kerux-boot.md` probe section.
+2. Set PERSISTENCE_MODE, TOKEN_THRESHOLD, ATTENTION_HINTS based on the runtime's capabilities.
+3. Do not modify role or skill files. The contract handles the adaptation.

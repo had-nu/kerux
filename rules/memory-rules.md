@@ -1,37 +1,68 @@
-# Rules: Memory, Tokens & Context Management
+# Memory Rules
 
-> **Objective**: Ensure high-fidelity reasoning by maintaining a lean, high-signal context window.
+Context boundaries and persistence. Ensures lean, high-signal reasoning across sessions.
 
-## 💾 M1: Context Layering
-Context is organized into three distinct layers to prevent "noise saturation":
-- **Layer 1: Core Directive (Static)**: `.kerux` core instructions. Loaded at boot.
-- **Layer 2: Project Blueprint (Persistent)**: `spec_projeto.md`. The source of truth for the current objective. 
-- **Layer 3: Task Context (Volatile)**: Raw code and logs. Force-pruned after each successful sub-task completion.
+## M1: Context Layering
 
-## 🪙 M2: Token Discipline
-- **Signal-to-Noise Ratio**: Prefer pseudocode for explanation and shorthand for handoffs.
-- **Selective Reading**: Use `grep` and `sed` for targeted file reads instead of reading whole files > 300 lines.
-- **Chunking**: Break complex reasoning into role-specific segments to keep individual prompt sizes low.
+Three layers prevent noise saturation:
 
-## 🧹 M3: Adaptive Pruning
-Kerux must trigger context consolidation when the session exceeds TOKEN_THRESHOLD
-as defined in `rules/runtime-contract.md` (default: 80% of available context).
-- **Consolidation Protocol**: Summarize active logic -> Save to `session.json` -> Start fresh Turn.
+Layer 1 — Core Directive (static):
+- `.kerux/` files loaded at boot.
+- Commandments, edicts, flow-states, packet-schema, runtime-contract.
+- Never pruned during active flow.
 
-## 🛡️ M4: The Memory Seal
-- **Lessons.md**: Update only with confirmed user preferences or critical bug-fixes.
-- **No Hallucinated State**: If session memory is ambiguous, Kerux must re-verify paths via `ls`.
+Layer 2 — Project Blueprint (persistent):
+- `spec_projeto.md` + Analyst's context packet.
+- Source of truth for the current objective.
+- Pruned only on transition to IDLE.
 
-## 💾 M5: Persistence Protocol
-Context is organized into persistent layers (follows the Layer model in M1):
-- **Long-Term**: `.kerux/memory/lessons.md`. Confirmed user preferences and critical anti-patterns.
-  Updated only on task completion or explicit user instruction.
-- **Session**: `.kerux/memory/session.json`. Current state, task IDs, todo deltas, and transient variables.
-  Updated at every state transition.
+Layer 3 — Task Context (volatile):
+- Raw shell output, full file reads, intermediate tool results.
+- Force-pruned after every successful state transition.
 
-### Sync Rules
-1. **Identify Delta**: What changed since the last state transition? (Handoff summary, lesson learned, task progress.)
-2. **Update Session**: Sync task IDs and flow state to `session.json`.
-3. **Commit Lessons**: Only on task completion or when a major preference is established.
-4. **Runtime dependency**: When PERSISTENCE_MODE=none (see rules/runtime-contract.md),
-   skip file writes. Maintain state in-context only.
+## M2: Token Discipline
+
+- Signal-to-noise ratio is the primary metric. Pseudocode for explanation, shorthand for handoffs.
+- Selective reading: `grep -n`, `head -N`, `sed -n 'A,Bp'` over `cat` for files > 100 lines.
+- Chunk complex reasoning into role-specific segments.
+- Packets carry delta, never full state — the receiving role reads from disk when needed.
+
+## M3: Adaptive Pruning
+
+- Threshold: TOKEN_THRESHOLD from `rules/runtime-contract.md` (default 80000).
+- On threshold crossing: invoke `skills/memory-compression.md`.
+- Compression produces a Seed Block, then resets Layer 3.
+- Layers 1 and 2 survive compression.
+
+## M4: Memory Seal
+
+- `memory/lessons.md`: update only on task completion or explicit user instruction.
+- Never add speculative lessons. A single turn is not enough evidence.
+- Never hallucinate state. If session memory is ambiguous, re-verify paths via `ls`.
+- Lessons are append-only within a session. Revision happens at task boundaries.
+
+## M5: Persistence Protocol
+
+Persistence behaviour depends on PERSISTENCE_MODE (from runtime-contract.md):
+
+PERSISTENCE_MODE=file:
+- `memory/session.json`: current state, task IDs, todo deltas, transient vars.
+- Updated at every state transition by Kerux.
+- `memory/lessons.md`: persistent across sessions, append-only.
+
+PERSISTENCE_MODE=memory:
+- Runtime provides cross-session memory (e.g., hosted LLM memory API).
+- Skip file writes. Use runtime memory primitives.
+- Seed blocks and lessons live in runtime memory.
+
+PERSISTENCE_MODE=none:
+- Stateless. All context is in-session.
+- Memory compression produces a text block the user pastes into the next session.
+- No file writes to memory/ directory.
+
+### Sync Rules (when persistence is active)
+
+1. Identify delta: what changed since the last state transition?
+2. Update session: sync current_state, task IDs, active spec to session.json.
+3. Commit lessons: only on task completion or major preference established.
+4. Verify: after write, re-read to confirm persistence succeeded. On failure, degrade to in-session only.

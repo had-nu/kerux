@@ -1,45 +1,114 @@
-# Packet Schema v1
+# Packet Schema
 
-> **Authority**: This schema is the contract for all inter-role communication.
-> Every packet sent or received by any role MUST conform to this structure.
+Contract for all inter-role communication. Every packet sent or received MUST conform.
+Primary format: state transition marker (validated by packet benchmark, v1.0.0).
+Fallback format: compact JSON (for cross-session persistence scenarios).
 
-## Schema
+## Primary Format — State Transition Marker
 
-<packet>
-  <id>Unique task identifier (format: KRX-YYYYMMDD-NNN)</id>
-  <origin>Sending role name</origin>
-  <target>Receiving role name</target>
-  <state>Current flow state (reference: rules/flow-states.md)</state>
-  <intent>Imperative verb phrase: what the receiver must do</intent>
-  <context>
-    <files>Ordered list of file paths relevant to this task</files>
-    <dependencies>External requirements (tools, env vars, APIs)</dependencies>
-    <constraints>Guardrails specific to this task — overrides nothing in Commandments</constraints>
-  </context>
-  <vars>
-    Key=value pairs. Project name, target path, branch, flags.
-  </vars>
-  <summary>1-2 sentence description of what happened before this handoff</summary>
-</packet>
+```
+→{target}|{state}|{delta}|{focus}
+```
 
-## Validation Rules
+| Slot | Content | Max |
+|------|---------|-----|
+| `target` | Single-letter role code | 1 char |
+| `state` | Transition `FROM→TO` in 3-letter codes | 7 chars |
+| `delta` | What changed. Comma-separated facts. No articles, no filler. | 80 chars |
+| `focus` | What the target should prioritize. Imperative fragments. | 60 chars |
 
-1. `id` must be unique within a session. Kerux assigns IDs; roles do not.
-2. `origin` and `target` must be valid role names: Kerux, Architect, Engineer, Auditor, Analyst.
-3. `state` must be a valid state from `flow-states.md`.
-4. `intent` must start with an imperative verb (map, design, implement, audit, scaffold).
-5. `context.files` paths must be verified (ls/stat) before inclusion. No stale paths.
-6. `constraints` cannot weaken Commandments. They can only add task-specific restrictions.
+Hard ceiling: 200 chars per packet.
 
-## Compact Mode
+### Role Codes
 
-For simple handoffs where full context is unnecessary (e.g., Auditor PASS → Kerux):
+K=Kerux(Lead) N=Analyst A=Architect E=Engineer U=Auditor
 
-<packet>
-  <id>KRX-20260415-007</id>
-  <origin>Auditor</origin>
-  <target>Kerux</target>
-  <state>REVIEWED</state>
-  <intent>approve implementation</intent>
-  <summary>All blueprint items verified. No security findings. PASS.</summary>
-</packet>
+### State Codes
+
+IDL=IDLE MAP=MAPPING DES=DESIGNING SCF=SCAFFOLDING IMP=IMPLEMENTING REV=REVIEWING STG=STAGING COM=COMMITTED FAI=FAILED
+
+### Examples
+
+Analyst → Architect:
+```
+→A|MAP→DES|12 files mapped, cobra cmd/, go1.22, no lazygo.yml|spec from template, CLI type, high crit
+```
+
+Engineer → Auditor:
+```
+→U|IMP→REV|5 files created per spec, go build clean, race passes|audit security baseline S1-S8
+```
+
+Auditor PASS:
+```
+→K|REV→STG|all checks pass, 0 findings, safePath verified|stage for commit, conventional msg
+```
+
+Auditor REJECT to Engineer (code-level):
+```
+→E|REV→IMP|REJECT: hasher.go L47 os.ReadFile on untrusted size|fix to streaming, re-submit
+```
+
+Auditor REJECT to Architect (design-level):
+```
+→A|REV→DES|REJECT: spec missing symlink control in T3|amend threat model, re-handoff
+```
+
+Engineer BLOCKED:
+```
+→A|IMP→DES|BLOCKED: spec §3.2 silent on error aggregation|codebase has logger, suggest slog in spec|propose fix
+```
+
+### Validation Rules
+
+1. `target` must be a valid role code.
+2. `state` must be a valid transition per flow-states.md transition table.
+3. `delta` and `focus` must not duplicate data already in context (spec, previous packets).
+4. Packets over 200 chars must be rewritten or escalated to JSON fallback.
+5. Malformed packet = DEGRADED log entry. Kerux fixes format before dispatch.
+
+## Fallback Format — Compact JSON
+
+Use when:
+- PERSISTENCE_MODE=memory (cross-session, shared context may not be visible).
+- Data volume exceeds marker capacity legitimately (not filler).
+- Structured fields needed for audit trail beyond session.
+
+```json
+{"id":"KRX-NNN","from":"U","to":"E","st":"REV→IMP","v":{"verdict":"REJECT","file":"hasher.go","line":47},"s":"os.ReadFile unbounded. Need streaming.","refs":["internal/hasher/hasher.go"]}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | yes | Sequential: `KRX-001`, `KRX-002`, ... |
+| `from` | string | yes | Single-letter origin role code |
+| `to` | string | yes | Single-letter target role code |
+| `st` | string | yes | State transition `FROM→TO` |
+| `v` | object | no | Structured variables. Keys ≤ 6 chars abbreviated. |
+| `s` | string | yes | Summary. ≤ 120 chars. Caveman-compressed. |
+| `refs` | array | no | File paths referenced. Paths only, not contents. |
+
+Constraints:
+- Single line, no indentation.
+- Keys abbreviated aggressively.
+- `s` field follows compression rules: no articles, fragments OK.
+- `refs` carries paths, never contents.
+
+## Format Selection Rule
+
+PERSISTENCE_MODE=file or PERSISTENCE_MODE=none (single session):
+- Default: marker format.
+- Data is in context; packet is routing + delta.
+
+PERSISTENCE_MODE=memory (cross-session):
+- Default: JSON format.
+- Context may not carry forward; packet must be self-contained enough.
+
+Kerux selects the format at dispatch time based on runtime mode. Roles produce the format Kerux dispatched in.
+
+## Invariants
+
+1. Every transition produces exactly one packet.
+2. Packets never carry file contents or full command output — only paths or summaries.
+3. Packet size is measured after compression; verbose packets are a smell.
+4. When in doubt between marker and JSON, choose marker. Upgrade only if content exceeds capacity.

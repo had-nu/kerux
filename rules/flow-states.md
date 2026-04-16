@@ -1,88 +1,124 @@
-# Flow States v1
+# Flow States
 
-> **Authority**: Defines every valid state in the Kerux development cycle,
-> the transitions between them, and the failure handling at each stage.
+Defines every valid state in the Kerux development cycle, the transitions between them, and failure handling at each stage.
+
+## State Codes
+
+IDL=IDLE MAP=MAPPING DES=DESIGNING SCF=SCAFFOLDING IMP=IMPLEMENTING REV=REVIEWING STG=STAGING COM=COMMITTED FAI=FAILED
 
 ## States
 
-### IDLE
+### IDLE (IDL)
 - **Owner**: Kerux
-- **Entry**: Session boot complete, or previous task committed/abandoned.
-- **Exit**: User provides a task. → MAPPING
+- **Entry**: Session boot complete, or previous task reached COMMITTED/FAILED.
+- **Exit condition**: User provides project-scoped task → MAPPING.
+- **Out-of-scope requests**: Kerux answers directly, stays in IDLE.
 
-### MAPPING
+### MAPPING (MAP)
 - **Owner**: Analyst
-- **Entry**: Kerux dispatches a mapping packet.
-- **Exit artifacts**: Context Packet (file paths, dependencies, project metadata).
+- **Entry**: Kerux dispatch with user intent.
+- **Exit artifact**: Context packet (structure, module, deps, scaffold, spec, security).
 - **Transitions**:
   - Success → DESIGNING
-  - Failure (project not found, ambiguous scope) → IDLE + user clarification request
+  - Empty/greenfield project → DESIGNING (packet is minimal; Architect enters elicitation)
+  - Fatal (no shell access, corrupt workspace) → FAILED
 
-### DESIGNING
+### DESIGNING (DES)
 - **Owner**: Architect
-- **Entry**: Context Packet received from Analyst.
-- **Exit artifacts**: `spec_projeto.md` conforming to `templates/SPEC_TEMPLATE.md`.
+- **Entry**: Analyst's context packet received.
+- **Exit artifact**: `spec_projeto.md` conforming to SPEC_TEMPLATE.md.
+- **Sub-phases**:
+  - Phase 1: Assess context sufficiency.
+  - Phase 2: Elicitation (if needed, max 3 rounds with user).
+  - Phase 3: Spec authoring.
 - **Transitions**:
-  - Success → SCAFFOLDING (if new project) or IMPLEMENTING (if existing project)
-  - Failure (template unavailable, conflicting requirements) → IDLE + user escalation
+  - Success + new project → SCAFFOLDING
+  - Success + existing project → IMPLEMENTING
+  - Template missing → FAILED
+  - User aborts elicitation → IDLE
 
-### SCAFFOLDING
-- **Owner**: Engineer (under Kerux supervision)
-- **Entry**: New project flag set in spec. `lazygo.yml` generated.
-- **Exit artifacts**: Project directory created, `spec_projeto.md` copied to root.
+### SCAFFOLDING (SCF)
+- **Owner**: Engineer
+- **Entry**: Spec has `new_project: true` flag or empty project structure.
+- **Exit artifact**: Project directory, go.mod, initial file tree. Spec copied to project root.
+- **Action**: Engineer generates `lazygo.yml` from spec, runs `lazy.go init --from <path>`.
 - **Transitions**:
   - Success → IMPLEMENTING
-  - Failure (lazy.go error, path conflict) → DESIGNING + error context
+  - Lazy.go error → DESIGNING (Architect adjusts spec)
+  - Path conflict → FAILED (unrecoverable filesystem state)
 
-### IMPLEMENTING
+### IMPLEMENTING (IMP)
 - **Owner**: Engineer
-- **Entry**: `spec_projeto.md` exists and is current.
-- **Exit artifacts**: Modified/created files as listed in blueprint.
+- **Entry**: Spec is current. Project structure exists.
+- **Exit artifact**: Files modified/created per Blueprint. Build passes (`go build ./...`).
 - **Transitions**:
   - Success → REVIEWING
-  - Blocked (spec incomplete, missing dependency) → DESIGNING + BLOCKED packet
-  - Failure (build error, test failure) → self-retry (max 2), then DESIGNING
+  - BLOCKED (spec incomplete/ambiguous) → DESIGNING with BLOCKED packet
+  - Build error → self-retry (max 2 attempts), then DESIGNING
+  - Fatal → FAILED
 
-### REVIEWING
+### REVIEWING (REV)
 - **Owner**: Auditor
-- **Entry**: Engineer handoff packet with change summary.
-- **Exit artifacts**: Verdict (PASS | REJECT | COMMENT) with evidence.
+- **Entry**: Engineer's handoff packet with change summary.
+- **Exit artifact**: Verdict (PASS, COMMENT, REJECT) with evidence.
 - **Transitions**:
   - PASS → STAGING
-  - COMMENT → STAGING (with notes attached)
-  - REJECT → route based on rejection type:
-    - Blueprint deviation → IMPLEMENTING (Engineer fixes)
-    - Architectural flaw → DESIGNING (Architect revises)
-    - Security finding → DESIGNING (mandatory — security issues require spec-level response)
+  - COMMENT → STAGING (notes attached)
+  - REJECT (code-level) → IMPLEMENTING (Engineer fixes)
+  - REJECT (design-level) → DESIGNING (Architect revises spec)
+  - REJECT (security finding) → DESIGNING mandatory (no code-only fix for security issues)
 
-### STAGING
+### STAGING (STG)
 - **Owner**: Kerux
 - **Entry**: Auditor PASS or COMMENT.
-- **Exit artifacts**: Commit message (Conventional Commits format).
-- **Action**: Present diff summary + proposed commit message to user.
+- **Exit artifact**: Commit message (Conventional Commits format).
+- **Action**: Present diff + proposed commit to user.
 - **Transitions**:
   - User approves → COMMITTED
   - User requests changes → IMPLEMENTING
-  - User abandons → IDLE
+  - User abandons → IDLE (changes remain on disk, uncommitted)
 
-### COMMITTED
+### COMMITTED (COM)
 - **Owner**: Kerux
-- **Entry**: User explicit approval in current turn.
-- **Action**: Execute git add + git commit. Never git push (user does this manually).
+- **Entry**: User explicit approval in current turn (Commandment C1).
+- **Action**: `git add` + `git commit`. Never `git push`.
 - **Transitions**: → IDLE
 
-### FAILED
+### FAILED (FAI)
 - **Owner**: Kerux
-- **Entry**: Any unrecoverable error (missing tools, corrupt state, repeated failures).
+- **Entry**: Any unrecoverable error.
 - **Action**: Report full error context to user. Suggest manual intervention.
 - **Transitions**: → IDLE (after user acknowledgment)
 
+## Transition Table
+
+| From | To | Trigger | Role |
+|------|----|----|------|
+| IDL | MAP | User task in scope | Analyst |
+| MAP | DES | Context packet emitted | Architect |
+| DES | SCF | Spec complete, new project | Engineer |
+| DES | IMP | Spec complete, existing project | Engineer |
+| DES | FAI | Template missing | Kerux |
+| SCF | IMP | Scaffold complete | Engineer |
+| SCF | DES | Lazy.go error | Architect |
+| IMP | REV | Implementation complete, build passes | Auditor |
+| IMP | DES | BLOCKED packet | Architect |
+| IMP | FAI | Fatal error after retries | Kerux |
+| REV | STG | PASS or COMMENT | Kerux |
+| REV | IMP | REJECT code-level | Engineer |
+| REV | DES | REJECT design-level or security | Architect |
+| STG | COM | User approval | Kerux |
+| STG | IMP | User requests changes | Engineer |
+| STG | IDL | User abandons | Kerux |
+| COM | IDL | Commit complete | Kerux |
+| FAI | IDL | User acknowledges | Kerux |
+| * | IDL | User abort | Kerux |
+
 ## Invariants
 
-1. Only one role holds the lock at any time. No concurrent role execution.
-2. State transitions are logged in the session todo (skills/agent-todo.md).
-3. Every REJECT must include the target state for the rollback — the Auditor decides
-   whether the fix is a Engineer task or an Architect task.
-4. STAGING → COMMITTED requires user approval in the CURRENT turn (Commandment C1).
-5. The IMPLEMENTING → DESIGNING (BLOCKED) transition is the Engineer's escape hatch
-   for spec incompleteness. It is not a failure — it is correct behaviour.
+1. Only one role holds the lock at a time. No concurrent execution.
+2. State transitions are logged in session.json (if PERSISTENCE_MODE=file).
+3. Every REJECT specifies the target state — Auditor decides Engineer fix vs Architect revision.
+4. STG → COM requires user approval in the CURRENT turn (Commandment C1).
+5. IMP → DES via BLOCKED is correct behaviour, not a failure.
+6. User can abort at any state; flow returns to IDLE with artifacts preserved.

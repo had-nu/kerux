@@ -1,141 +1,201 @@
-# [PROJECT NAME] — Technical Specification
-<!-- Version: 1.0 | Status: Draft | Author: [name] | Date: YYYY-MM-DD -->
+# {Project Name} — Technical Specification
+<!-- Version: X.Y | Status: {Draft|Active|Superseded} | Author: {name} | Date: YYYY-MM-DD -->
 
-> **RFC 2119 Convention:** The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHOULD", "SHOULD NOT", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+> **RFC 2119 Convention**: The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHOULD", "SHOULD NOT", "MAY", and "OPTIONAL" are interpreted as in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+
+> **Kerux context**: This spec is the single source of truth for the Engineer's implementation and the Auditor's verification. Neither role improvises beyond it.
 
 ---
 
 ## 1. Overview
 
 ### 1.1 Problem Statement
-<!-- What problem does this project solve? Why does it need to exist? -->
+{What exists today. What is broken or missing. Why it matters. One paragraph, concrete.}
 
 ### 1.2 Proposed Solution
-<!-- One-paragraph summary of the approach. -->
+{One paragraph. What this project does. Who uses it. How it resolves §1.1.}
 
 ### 1.3 Scope
-<!-- Explicit boundaries: what this spec covers and what it does not. -->
+
+**IN:**
+- {Capability 1}
+- {Capability 2}
+
+**OUT:**
+- {Explicit non-goal 1}
+- {Explicit non-goal 2}
 
 ---
 
 ## 2. Goals & Non-Goals
 
 ### 2.1 Goals
-<!-- Numbered list of measurable outcomes this project MUST achieve. -->
-1. ...
+1. {Measurable outcome with a verification method}
+2. {Measurable outcome}
+3. Pass all automated checks: `go vet`, `staticcheck`, `gosec`, `go test -race`.
 
 ### 2.2 Non-Goals
-<!-- Explicitly out of scope. Prevents scope creep. -->
-1. ...
+1. {Explicit exclusion}
+2. {Explicit exclusion}
 
 ---
 
 ## 3. Architecture
 
 ### 3.1 System Diagram
-<!-- Mermaid, ASCII, or reference to an external diagram. -->
+
+```
+{text-based component diagram showing data flow}
+```
 
 ### 3.2 Component Inventory
-<!-- Table of every component, its responsibility, and its technology. -->
+
 | Component | Responsibility | Technology | Notes |
 |-----------|---------------|------------|-------|
-| | | | |
+| `{path/to/component}` | {one-line responsibility} | {lib or stdlib package} | {constraint or integration note} |
 
 ### 3.3 Data Flow
-<!-- Step-by-step description of how data moves through the system. -->
+
+**{Operation name} flow:**
+1. {Step}
+2. {Step}
+3. {Step}
 
 ### 3.4 External Dependencies
-<!-- Third-party services, APIs, libraries with version constraints. -->
+
 | Dependency | Version | Purpose | Risk if Unavailable |
 |-----------|---------|---------|---------------------|
-| | | | |
+| `{import path}` | {version} | {why needed} | {impact} |
+| Go stdlib ({packages}) | go{version}+ | {core use} | N/A |
 
 ---
 
 ## 4. Data Model
 
 ### 4.1 Core Entities
-<!-- Define the primary data structures / schemas. -->
+
+```go
+// {package path}
+
+type {Name} struct {
+    {Field} {Type} `{tags}` // {comment}
+}
+```
 
 ### 4.2 Storage
-<!-- Database choice, rationale, schema overview. -->
+{Plain text / SQLite / in-memory / N/A. Include format if text.}
 
 ### 4.3 Data Lifecycle
-<!-- Retention, archival, deletion policies. -->
+{When created. When modified. When purged. Retention policy or "user manages."}
 
 ---
 
 ## 5. Interfaces
 
 ### 5.1 CLI / API Surface
-<!-- Commands, flags, endpoints, request/response formats. -->
+
+```
+{command} {subcommand} [flags]
+```
+
+| Command | Flag | Type | Required | Default | Description |
+|---------|------|------|----------|---------|-------------|
+| `{sub}` | `--{flag}` | {type} | {yes/no} | {default or —} | {description} |
 
 ### 5.2 Configuration
-<!-- Environment variables, config files, defaults. -->
+{Config files, env vars — or "None. All inputs via CLI flags."}
 
 ### 5.3 Output Formats
-<!-- What the system produces and in which formats. -->
+
+**{Command}**: {stdout format, file format, or "No stdout on success."}
+
+**Exit codes**: 0 ({success}), 1 ({expected failure}), 2 ({operational error}).
 
 ---
 
 ## 6. Performance & Capacity
 
 ### 6.1 Targets
-<!-- Concrete, measurable targets with boundary conditions. -->
+
 | Metric | Target | Boundary Condition |
-|--------|--------|--------------------|
-| | | |
+|--------|--------|---------------------|
+| {Metric} | {value with unit} | {measurement context} |
 
 ### 6.2 Bottlenecks & Limits
-<!-- Known limitations, rate limits, resource ceilings. -->
+{Known constraints. Explicit non-goals re: concurrency, scaling.}
 
 ### 6.3 Scaling Strategy
-<!-- How the system scales (horizontal, vertical, auto). -->
+{Not applicable / horizontal / vertical — with rationale.}
 
 ---
 
 ## 7. Security & Compliance
 
 ### 7.1 Threat Model
-<!-- What are the security-relevant attack surfaces? -->
+
+Every trust boundary has an entry. No exceptions.
+
+| ID | Threat | Attack Vector | Control |
+|----|--------|--------------|---------|
+| T1 | {threat name} | {how it's exploited} | {named control — reference go-security skill pattern if applicable} |
+
+Canonical controls for common surfaces (reference the go-security skill):
+- File path from external input → `safePath()` with separator suffix
+- File reads of unbounded size → streaming via `io.Copy` into hash
+- Symlinks in walk → skip via `d.Type()` check
+- User input to shell → `exec.CommandContext` with separated args
+- Token comparison → `crypto/subtle.ConstantTimeCompare`
+- Randomness → `crypto/rand`
+- Secrets → `os.Getenv` with startup validation
 
 ### 7.2 Data Handling
-<!-- How sensitive data is handled, stored, transmitted. -->
+{Secrets: none / encrypted / env var. PII: none / how handled. Network: none / TLS / mTLS.}
 
 ### 7.3 Compliance Requirements
-<!-- Regulatory or framework obligations (ISO, SOC2, GDPR, etc.). -->
+{None / ISO 27001 / DORA / internal-only / specify framework and scope.}
 
 ---
 
 ## 8. Deployment & Operations
 
 ### 8.1 Infrastructure
-<!-- Where and how the system is deployed. -->
+{Local binary / container / library. Build command.}
 
 ### 8.2 Build & Release
-<!-- Build pipeline, artifact registry, release process. -->
+
+```bash
+{build commands}
+```
+
+{CI pipeline reference or "Manual build for this scope."}
 
 ### 8.3 Monitoring & Observability
-<!-- Logging, metrics, alerting strategy. -->
+{Logs via slog / metrics exported / none for CLI.}
 
 ### 8.4 Disaster Recovery
-<!-- Backup, failover, RTO/RPO. -->
+{Not applicable / backup strategy / rollback procedure.}
 
 ---
 
 ## 9. Testing Strategy
 
 ### 9.1 Unit Tests
-<!-- Coverage targets, frameworks, conventions. -->
+
+| Package | Test | Description |
+|---------|------|-------------|
+| `{pkg}` | `Test{Name}` | {what it verifies} |
 
 ### 9.2 Integration Tests
-<!-- What integrations are tested and how. -->
+{Table with same shape, or "Not applicable — unit + E2E cover the surface."}
 
 ### 9.3 End-to-End / Acceptance Tests
-<!-- Full pipeline validation criteria. -->
+
+| ID | Test | Steps | Expected |
+|----|------|-------|----------|
+| F1 | {test name} | {1. ... 2. ... 3. ...} | {observable outcome + exit code} |
 
 ### 9.4 Performance / Load Tests
-<!-- Benchmark methodology and success criteria. -->
+{Not applicable / benchmark targets.}
 
 ---
 
@@ -143,7 +203,7 @@
 
 | Phase | Deliverable | Success Criteria | Target Date |
 |-------|------------|------------------|-------------|
-| | | | |
+| 1 | {artifact} | {verifiable condition} | {date or —} |
 
 ---
 
@@ -151,29 +211,109 @@
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
-| | | | |
+| {risk} | {impact description} | {Low/Med/High} | {mitigation or "Accepted as known limitation"} |
 
 ---
 
 ## 12. Decision Log
 
+Every non-obvious choice is logged. Assumptions from elicitation phase live here with status "Assumed — pending user confirmation."
+
 | ID | Decision | Rationale | Date | Status |
 |----|----------|-----------|------|--------|
-| D-001 | | | | Accepted |
+| D-001 | {decision} | {why} | YYYY-MM-DD | {Accepted/Rejected/Superseded/Assumed} |
 
 ---
 
 ## 13. Open Questions
 
-<!-- Unresolved items that require investigation or stakeholder input. -->
-- [ ] ...
+- [ ] {Question that remains after elicitation, documented for user follow-up.}
+- [x] {Resolved question with resolution noted.}
 
 ---
 
 ## Appendices
 
 ### A. Glossary
-<!-- Project-specific terminology. -->
+
+| Term | Definition |
+|------|-----------|
+| {Term} | {Definition} |
 
 ### B. References
-<!-- Links to related documents, RFCs, prior art. -->
+
+- {External spec, RFC, or standard}
+- {Internal spec dependency}
+
+---
+
+## Blueprint
+
+The executable section. The Engineer implements this literally. The Auditor verifies against this.
+
+### Files to create / modify / delete
+
+#### `[NEW]` {relative/path/to/file.go}
+{One sentence describing what the file does.}
+
+```pseudocode
+{Precise pseudocode. Not English paragraphs. Structure matches the intended code.
+
+Reference security patterns by name, do not reinvent:
+- "Use safePath() from go-security skill" — not "validate the path"
+- "Use io.Copy streaming hash" — not "hash the file"
+
+The Engineer follows this literally. If it's ambiguous here, it's ambiguous in production.}
+```
+
+#### `[MODIFY]` {relative/path/to/file.go}
+{One sentence describing the change.}
+
+{Before/after diff or pseudocode patch.}
+
+#### `[DELETE]` {relative/path/to/file.go}
+{Reason for deletion.}
+
+---
+
+## Guardrails
+
+The Auditor's checklist. Each entry is a binary check with a pass condition.
+
+| ID | Check | Pass condition |
+|----|-------|----------------|
+| S1 | {specific check} | {exact pass criterion — grep-able or testable} |
+| S2 | {check} | {criterion} |
+
+Mandatory guardrails when applicable:
+- Projects touching files: S# for `safePath` with separator suffix verified
+- Projects doing crypto: S# for `crypto/rand` and `crypto/subtle` usage
+- Projects with JSON envelopes: S# for `LimitReader` + `DisallowUnknownFields`
+- All projects: S# for no `_` on error returns in security-critical paths
+- All projects: S# for no TODO/FIXME left as implementation
+
+---
+
+## CI Mirror
+
+Automated checks that enforce the spec's requirements. Exact commands.
+
+```bash
+go vet ./...
+staticcheck ./...
+gosec -quiet ./...
+govulncheck ./...
+go test -race -count=1 ./...
+```
+
+Each command maps to spec requirements it enforces. If a requirement has no corresponding CI check, flag it as a gap.
+
+---
+
+<!--
+  Template notes for the Architect (remove before finalizing):
+  - Every {placeholder} must be replaced or the section removed explicitly.
+  - Never leave "TBD" or "TODO" in a final spec. Elicit or decide.
+  - If a section does not apply to the project, replace its body with "Not applicable" plus one sentence of rationale. Do not delete the section header — structural uniformity helps the Auditor.
+  - The Blueprint, Guardrails, and CI Mirror sections are mandatory. The spec fails without them.
+-->

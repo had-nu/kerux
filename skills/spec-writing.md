@@ -109,3 +109,8 @@ Every non-obvious choice:
 - Pseudocode in English paragraphs instead of structured logic. Use code-like blocks.
 - Security section that says "validate input" without naming HOW.
 - Blueprint without file paths. Every change is anchored to a file.
+- Modifying an existing file without citing the exact line anchor and current
+  snippet. Brownfield changes must show what exists before showing what
+  replaces it. The Engineer verifies the Before block matches the live file;
+  if it doesn't, the spec is stale and the Engineer emits BLOCKED via the
+  escape hatch.

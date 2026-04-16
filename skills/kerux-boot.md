@@ -4,7 +4,7 @@ Session initialization. Execute silently before responding to user.
 
 ## Sequence
 
-0. Read `.kerux/VERSION`. Log version. If missing, warn user, create with `3.0.0`.
+0. Read `.kerux/VERSION`. Log version. If missing, warn user, create with `1.0.0`.
 1. Load `rules/commandments.md` — absolute constraints.
 2. Load `rules/edicts.md` — authoritative guidance.
 3. Load `rules/memory-rules.md` — context boundaries.

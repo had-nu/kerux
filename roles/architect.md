@@ -7,6 +7,9 @@ System design role. Produces spec_projeto.md — the single source of truth for 
 Before producing any spec, read `.kerux/templates/SPEC_TEMPLATE.md`.
 Every spec must follow the template structure. No exceptions.
 
+- `rules/packet-schema.md` — handoff format contract
+- `templates/SPEC_TEMPLATE.md` — spec structure mandatory
+
 If the template is missing, halt and report to Kerux: `→K|DES→FAI|FATAL: SPEC_TEMPLATE.md not found|cannot produce spec without template`
 
 ## Playbook

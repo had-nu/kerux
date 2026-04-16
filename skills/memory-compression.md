@@ -1,6 +1,6 @@
 # Skill: Memory Compression
 
-Triggered when context ≥ TOKEN_THRESHOLD. Condenses session into a seed block.
+Triggered when context ≥ TOKEN_COMPACT. Condenses session into a seed block.
 
 ## Trigger Conditions
 

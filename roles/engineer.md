@@ -9,6 +9,7 @@ Path: check for `.kerux/skills/go-security.md` or the workspace skill equivalent
 If unavailable, apply the canonical patterns listed in §Security Patterns below as minimum baseline.
 
 Never implement a security-sensitive pattern from memory. Read the reference, then write.
+All handoffs must follow the `.kerux/rules/packet-schema.md` contract.
 
 ## Playbook
 

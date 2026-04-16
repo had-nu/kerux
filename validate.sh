@@ -39,6 +39,10 @@ check "no file:/// URIs"                 "! grep -r 'file:///' --include='*.md' 
 check "VERSION file exists"              "test -f VERSION"
 check "VERSION is semver"                "grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' VERSION"
 
+# Entry point
+check "kerux.md exists at root"          "test -f kerux.md"
+check "kerux-boot.md removed"            "! test -f skills/kerux-boot.md"
+
 # New files exist
 check "flow-states.md exists"            "test -f rules/flow-states.md"
 check "packet-schema.md exists"          "test -f rules/packet-schema.md"

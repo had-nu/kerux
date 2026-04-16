@@ -153,10 +153,10 @@ Kerux is a set of text files. It runs on any LLM agent that can read files and e
 
 | Runtime | Tested | Notes |
 |---------|--------|-------|
-| Antigravity (Gemini) | Yes | Primary development environment. Full persistence support. |
+| Antigravity (Google) | Yes | Primary development environment. Full persistence support. |
 | Claude Code | Planned | Memory system maps to `PERSISTENCE_MODE=memory`. |
 | Cursor / Windsurf | Planned | Skill-file compatible via project rules. |
-| Codex (OpenAI) | Untested | Should work — same file-reading + shell model. |
+| Codex (Standard) | Untested | Should work — same file-reading + shell model. |
 
 The `runtime-contract.md` file defines what Kerux needs from the environment. If the runtime can read files, run `go`, and run `git`, Kerux works.
 

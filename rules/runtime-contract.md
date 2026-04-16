@@ -68,7 +68,7 @@ Values:
 
 ## Boot Detection
 
-Performed silently by `skills/kerux-boot.md`:
+Performed silently during boot sequence in `kerux.md` §Boot:
 
 ```bash
 # 1. Shell availability (FATAL if missing)
@@ -92,7 +92,7 @@ echo test > .kerux/memory/.probe && rm .kerux/memory/.probe
 
 ## Invariants
 
-1. No role file mentions a specific LLM provider (Gemini, Claude, GPT, Llama, etc.).
+1. No role file mentions a specific LLM provider by name.
 2. No hardcoded token counts outside this file. Files reference TOKEN_WARN or TOKEN_COMPACT by name.
 3. Runtime detection is silent. User sees only the boot greeting.
 4. Degradation is reported in status lines, not logged silently.
@@ -101,6 +101,6 @@ echo test > .kerux/memory/.probe && rm .kerux/memory/.probe
 ## Extension Points
 
 When a new runtime is added:
-1. Document detection in `skills/kerux-boot.md` probe section.
-2. Set PERSISTENCE_MODE, TOKEN_THRESHOLD, ATTENTION_HINTS based on the runtime's capabilities.
+1. Document detection in `kerux.md` §Boot Step 3 probe section.
+2. Set PERSISTENCE_MODE, TOKEN_WARN / TOKEN_COMPACT, ATTENTION_HINTS based on the runtime's capabilities.
 3. Do not modify role or skill files. The contract handles the adaptation.

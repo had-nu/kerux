@@ -24,9 +24,13 @@ Before any dispatch:
 
 ## Threshold
 
-If context size ≥ TOKEN_THRESHOLD (from runtime-contract.md, default 80000):
-- Invoke `memory-compression.md` protocol.
-- Do not continue flow until compression completes.
+Two-stage response from `rules/runtime-contract.md`:
+
+- At TOKEN_WARN (default 50000): aggressive Layer 3 pruning. Drop all shell
+  output, intermediate tool results, and file reads already summarized in
+  packets. Continue flow. Emit status line noting context pressure.
+- At TOKEN_COMPACT (default 75000): invoke `memory-compression.md`. Halt flow
+  until Seed Block is produced and Layer 3 is reset.
 
 ## Selective Reading
 

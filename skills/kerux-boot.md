@@ -17,7 +17,8 @@ Session initialization. Execute silently before responding to user.
    - Persistence probe: attempt write/read to `.kerux/memory/test_probe`. 
      - Success → PERSISTENCE_MODE=file, delete probe.
      - Fail → PERSISTENCE_MODE=none.
-   - TOKEN_THRESHOLD: default 80000. Override if runtime provides context window size.
+   - TOKEN_WARN / TOKEN_COMPACT: defaults 50000 / 75000. Override if runtime
+     provides context window size (0.50 / 0.75 of window respectively).
 9. Load `.kerux/memory/session.json` if exists and PERSISTENCE_MODE=file.
 10. Load `.kerux/memory/lessons.md` if exists.
 

@@ -29,10 +29,18 @@ Layer 3 — Task Context (volatile):
 
 ## M3: Adaptive Pruning
 
-- Threshold: TOKEN_THRESHOLD from `rules/runtime-contract.md` (default 80000).
-- On threshold crossing: invoke `skills/memory-compression.md`.
-- Compression produces a Seed Block, then resets Layer 3.
-- Layers 1 and 2 survive compression.
+Two thresholds from `rules/runtime-contract.md`:
+
+- At TOKEN_WARN: Layer 3 pruning becomes aggressive. Discard all shell output,
+  intermediate tool results, and file reads already summarized in transition
+  packets. Layers 1 and 2 untouched. Status line emitted so the user sees
+  context pressure.
+- At TOKEN_COMPACT: Invoke `skills/memory-compression.md`. Produce Seed Block,
+  reset Layer 3 entirely. Layers 1 and 2 survive.
+
+The gap between WARN and COMPACT is the pruning window. If pruning at WARN
+brings context back below WARN, no compression fires. If context continues to
+grow past COMPACT despite pruning, compression is mandatory.
 
 ## M4: Memory Seal
 

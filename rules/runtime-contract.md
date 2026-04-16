@@ -22,12 +22,23 @@ Missing optional capabilities → DEGRADED, not FATAL.
 
 ## Adaptation Variables
 
-### TOKEN_THRESHOLD
+### TOKEN_WARN
 
-- **Purpose**: Trigger point for memory compression.
-- **Default**: 80000.
+- **Purpose**: Preemptive pruning signal. Layer 3 pruning becomes aggressive.
+- **Default**: 50000.
 - **Override**: Set at boot based on runtime detection.
-- **Guideline**: 80% of available context window, leaving 20% for active work.
+- **Rationale**: LLM output quality degrades well before the context is full
+  (measured ~40% for complex tasks, Huntley 2025). Pruning begins here to
+  keep active work in the "smart zone."
+
+### TOKEN_COMPACT
+
+- **Purpose**: Hard trigger for memory compression (seed block + reset).
+- **Default**: 75000.
+- **Override**: Set at boot based on runtime detection.
+- **Rationale**: Last safe moment to compress before degradation is severe.
+  The gap between WARN and COMPACT (~25k tokens) is the pruning window where
+  aggressive Layer 3 pruning keeps the session operational without full reset.
 
 ### PERSISTENCE_MODE
 
@@ -68,9 +79,11 @@ echo test > .kerux/memory/.probe && rm .kerux/memory/.probe
 # Success → PERSISTENCE_MODE=file
 # Fail (read-only FS, no memory dir) → PERSISTENCE_MODE=none
 
-# 3. Token threshold
-# If runtime exposes context window size: TOKEN_THRESHOLD = 0.8 * window
-# Else: default 80000
+# 3. Token thresholds
+# If runtime exposes context window size:
+#   TOKEN_WARN    = 0.50 * window
+#   TOKEN_COMPACT = 0.75 * window
+# Else: defaults 50000 / 75000
 
 # 4. Attention hints
 # Set only if runtime documentation confirms support
@@ -80,7 +93,7 @@ echo test > .kerux/memory/.probe && rm .kerux/memory/.probe
 ## Invariants
 
 1. No role file mentions a specific LLM provider (Gemini, Claude, GPT, Llama, etc.).
-2. No hardcoded token counts outside this file.
+2. No hardcoded token counts outside this file. Files reference TOKEN_WARN or TOKEN_COMPACT by name.
 3. Runtime detection is silent. User sees only the boot greeting.
 4. Degradation is reported in status lines, not logged silently.
 5. The contract is the only abstraction layer. Downstream files consume the variables, not the runtime.

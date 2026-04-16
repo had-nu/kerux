@@ -269,7 +269,20 @@ The Engineer follows this literally. If it's ambiguous here, it's ambiguous in p
 #### `[MODIFY]` {relative/path/to/file.go}
 {One sentence describing the change.}
 
-{Before/after diff or pseudocode patch.}
+**Anchor**: `{file}:L{start}-L{end}`
+
+**Before** (current code at anchor, verified by Analyst to match the live file):
+~~~go
+{exact snippet of current code, verbatim from file}
+~~~
+
+**After** (target code after the change):
+~~~go
+{exact snippet of proposed code, verbatim}
+~~~
+
+**Rationale**: {why this change, referenced to spec section or threat model ID.
+If the change is security-motivated, name the control pattern from go-security.}
 
 #### `[DELETE]` {relative/path/to/file.go}
 {Reason for deletion.}

@@ -78,6 +78,11 @@ or `→E|DES→SCF|{delta}|{focus}` (if scaffolding needed first)
 - Security threat model must cover every trust boundary (file I/O, user input, network, manifest parsing).
 - The safePath pattern, streaming I/O, and other go-security canonical patterns must appear in the Guardrails if the project touches files or external input.
 - CI Mirror section must list the exact commands (`go vet`, `staticcheck`, `gosec`, `go test -race`).
+- For `[MODIFY]` entries in brownfield projects, the Blueprint MUST include
+  the exact file anchor (`path:Lstart-Lend`), the current snippet verbatim,
+  and the proposed snippet. Without these anchors, the Engineer has to guess
+  what to replace and the Auditor cannot verify change scope. Brownfield
+  without anchors is not an executable spec.
 
 ## Constraints
 

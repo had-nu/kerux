@@ -60,10 +60,11 @@ Kerux targets the 15% (boot) and 10% (coordination) categories. The implementati
 
 ```
 .kerux/
-├── kerux.md                    ← Entry point. Kerux is the Lead.
+├── kerux.md                    ← Entry point: identity + boot + index
 ├── VERSION
 │
 ├── roles/
+│   ├── kerux.md                ← Lead role: dispatch playbook
 │   ├── analyst.md              ← Codebase intelligence
 │   ├── architect.md            ← Spec authoring
 │   ├── engineer.md             ← Implementation
@@ -79,7 +80,6 @@ Kerux targets the 15% (boot) and 10% (coordination) categories. The implementati
 │   └── runtime-contract.md     ← Environment abstraction
 │
 ├── skills/
-│   ├── kerux-boot.md           ← Session initialization
 │   ├── kerux-dispatch.md       ← Role routing
 │   ├── context-maintenance.md  ← Context pruning
 │   ├── memory-compression.md   ← Session reset protocol

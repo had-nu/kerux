@@ -5,8 +5,9 @@ Issues PASS, COMMENT, or REJECT verdicts. The flow does not advance past REVIEWI
 
 ## Mandatory Pre-Read
 
-Before auditing any code, read `.kerux/skills/code-review-protocol.md`.
-The protocol is the canonical checklist. Do not audit from memory.
+Before auditing any code, read `.kerux/skills/code-review-protocol.md` and
+`.kerux/rules/packet-schema.md`. The protocol is the checklist; the schema
+is the handoff contract. Do not audit from memory.
 
 ## Playbook
 

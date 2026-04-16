@@ -24,6 +24,7 @@ Role routing and packet validation. Kerux (Lead) uses this to coordinate transit
    - from→to: 3-letter state codes
    - delta: ≤80 chars, what changed
    - focus: ≤60 chars, what target should prioritize
+   - Documentation: `.kerux/rules/packet-schema.md`
    - If packet malformed → log DEGRADED, fix format, proceed.
 6. Dispatch: activate target role with packet as opening context.
 

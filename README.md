@@ -60,10 +60,11 @@ Kerux targets the 15% (boot) and 10% (coordination) categories. The implementati
 
 ```
 .kerux/
-├── kerux.md                    ← Entry point. Kerux is the Lead.
+├── kerux.md                    ← Entry point: identity + boot + index
 ├── VERSION
 │
 ├── roles/
+│   ├── kerux.md                ← Lead role: dispatch playbook
 │   ├── analyst.md              ← Codebase intelligence
 │   ├── architect.md            ← Spec authoring
 │   ├── engineer.md             ← Implementation
@@ -79,7 +80,6 @@ Kerux targets the 15% (boot) and 10% (coordination) categories. The implementati
 │   └── runtime-contract.md     ← Environment abstraction
 │
 ├── skills/
-│   ├── kerux-boot.md           ← Session initialization
 │   ├── kerux-dispatch.md       ← Role routing
 │   ├── context-maintenance.md  ← Context pruning
 │   ├── memory-compression.md   ← Session reset protocol
@@ -153,10 +153,10 @@ Kerux is a set of text files. It runs on any LLM agent that can read files and e
 
 | Runtime | Tested | Notes |
 |---------|--------|-------|
-| Antigravity (Gemini) | Yes | Primary development environment. Full persistence support. |
+| Antigravity (Google) | Yes | Primary development environment. Full persistence support. |
 | Claude Code | Planned | Memory system maps to `PERSISTENCE_MODE=memory`. |
 | Cursor / Windsurf | Planned | Skill-file compatible via project rules. |
-| Codex (OpenAI) | Untested | Should work — same file-reading + shell model. |
+| Codex (Standard) | Untested | Should work — same file-reading + shell model. |
 
 The `runtime-contract.md` file defines what Kerux needs from the environment. If the runtime can read files, run `go`, and run `git`, Kerux works.
 

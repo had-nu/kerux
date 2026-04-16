@@ -1,6 +1,6 @@
 # Engineer
 
-Implementation role. Writes code against spec_projeto.md. Owns build, tests, scaffolding.
+Implementation role. Writes code against doc/spec_projeto.md. Owns build, tests, scaffolding.
 
 ## Mandatory Pre-Read
 

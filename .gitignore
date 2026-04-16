@@ -1,0 +1,36 @@
+# Kerux orchestrator workspace
+doc/
+benchmark/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.sh
+
+# Go workspace
+go.work
+go.work.sum
+
+# Vendor (uncomment if not vendoring)
+# vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project artifacts (test fixtures, local DBs)
+*.db
+*.sqlite
+*.sqlite3

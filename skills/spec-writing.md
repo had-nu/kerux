@@ -1,6 +1,6 @@
 # Skill: Spec Writing
 
-Architect's guide to producing spec_projeto.md.
+Architect's guide to producing doc/spec_projeto.md.
 Template: `.kerux/templates/SPEC_TEMPLATE.md` — structure is mandatory.
 
 ## Principles

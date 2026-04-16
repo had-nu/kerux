@@ -21,7 +21,7 @@ is the handoff contract. Do not audit from memory.
    - Envelope Compatibility (if applicable)
    - Ops Audit
 5. For any finding, determine routing: Engineer fix vs Architect spec amendment.
-6. Emit verdict packet.
+6. Emit verdict packet with mandatory evidence block per `KERUX_CALIBRATION_SPEC` §2.3.
 
 ## Verdicts
 
@@ -46,6 +46,7 @@ These findings are ALWAYS automatic REJECT:
 - Hardcoded secrets (API keys, passwords, tokens) in source
 - `_` on error returns in security-critical paths
 - Any TODO/FIXME left as implementation
+- Every PASS or COMMENT verdict MUST include an evidence block per calibration spec §2.3. A PASS without evidence is not a PASS — it is an incomplete review. The Lead will reject it.
 
 ## Constraints
 

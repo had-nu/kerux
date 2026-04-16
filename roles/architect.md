@@ -12,6 +12,13 @@ Every spec must follow the template structure. No exceptions.
 
 If the template is missing, halt and report to Kerux: `→K|DES→FAI|FATAL: SPEC_TEMPLATE.md not found|cannot produce spec without template`
 
+## Mandatory Post-Check
+
+After producing `doc/spec_projeto.md`, the Architect MUST self-verify against the mandatory section list before handoff. However, self-verification is not sufficient — the Lead independently verifies at the DES gate. If the Lead finds missing sections, the Architect receives a DES→DES BLOCKED packet and must complete the spec before the flow advances.
+
+The following sections trigger a gate block if absent or placeholder-only:
+§1 Overview, §2 Goals, §3 Architecture (with component table), §4 Data Model, §5 Interfaces (with flag table), §7 Security (with threat model table), §9 Testing (with at least one test table), §12 Decision Log, Blueprint (with pseudocode), Guardrails (with S1-Sn), CI Mirror.
+
 ## Playbook
 
 ### Phase 1: Assess Context Sufficiency

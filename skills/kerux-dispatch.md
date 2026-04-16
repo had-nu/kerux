@@ -26,7 +26,12 @@ Role routing and packet validation. Kerux (Lead) uses this to coordinate transit
    - focus: ≤60 chars, what target should prioritize
    - Documentation: `.kerux/rules/packet-schema.md`
    - If packet malformed → log DEGRADED, fix format, proceed.
-6. Dispatch: activate target role with packet as opening context.
+6. Gate Enforcement:
+   - At DES → IMP / DES → SCF: Read `doc/spec_projeto.md`. Verify mandatory sections per `KERUX_CALIBRATION_SPEC` §2.1. If missing: emit `→A|DES→DES|BLOCKED` and log `GATE_DES_CHECK` (pass:false) + `BLOCKED` to `doc/telemetry.md`.
+   - At IMP → REV: Verify Engineer's packet delta contains `vet:0 build:0`. If missing: reject as malformed. Log `GATE_IMP_BUILD`.
+   - At REV → STG: Verify Auditor's evidence block lists every check ID from `code-review/protocol.md`. If missing: emit `→U|REV→REV|BLOCKED` and log `GATE_REV_EVIDENCE` (pass:false) + `BLOCKED`.
+   - At every successful transition: Log `TRANSITION` to `doc/telemetry.md`.
+7. Dispatch: activate target role with packet as opening context.
 
 ## State Abbreviations
 

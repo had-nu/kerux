@@ -105,6 +105,8 @@ IDL=IDLE MAP=MAPPING DES=DESIGNING SCF=SCAFFOLDING IMP=IMPLEMENTING REV=REVIEWIN
 | IMP | DES | BLOCKED packet | Architect |
 | IMP | FAI | Fatal error after retries | Kerux |
 | REV | STG | PASS or COMMENT | Kerux |
+| DES | DES | Gate: spec incomplete | Architect |
+| REV | REV | Gate: evidence incomplete | Auditor |
 | REV | IMP | REJECT code-level | Engineer |
 | REV | DES | REJECT design-level or security | Architect |
 | STG | COM | User approval | Kerux |
@@ -122,3 +124,5 @@ IDL=IDLE MAP=MAPPING DES=DESIGNING SCF=SCAFFOLDING IMP=IMPLEMENTING REV=REVIEWIN
 4. STG → COM requires user approval in the CURRENT turn (Commandment C1).
 5. IMP → DES via BLOCKED is correct behaviour, not a failure.
 6. User can abort at any state; flow returns to IDLE with artifacts preserved.
+7. DES→IMP and DES→SCF require the Lead to verify spec completeness per KERUX_CALIBRATION_SPEC §2.1. The Architect does not self-certify.
+8. REV→STG PASS requires an evidence block per KERUX_CALIBRATION_SPEC §2.3. The Auditor does not self-certify.

@@ -6,7 +6,7 @@ Strategy for lean context. Runs continuously during flow.
 
 Layer 1: Core Directive — `.kerux/` files loaded at boot. Static. Never pruned.
 
-Layer 2: Project Blueprint — `spec_projeto.md` + codebase map from Analyst. Persistent across state transitions in current flow. Pruned on IDLE transition.
+Layer 2: Project Blueprint — `doc/spec_projeto.md` + codebase map from Analyst. Persistent across state transitions in current flow. Pruned on IDLE transition.
 
 Layer 3: Task Context — raw shell output, full file contents, tool results. Volatile. Pruned after each successful state transition.
 
@@ -57,5 +57,5 @@ Low signal (prune):
 
 - Pruning is the Lead's responsibility. Roles do not self-prune.
 - When uncertain whether to prune, keep. A re-read is cheaper than a lost fact.
-- Never prune spec_projeto.md during active flow.
+- Never prune doc/spec_projeto.md during active flow.
 - Never prune the current role's packet.

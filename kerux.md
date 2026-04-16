@@ -59,10 +59,13 @@ Load in order (each file is authoritative for its domain):
 
 ### Step 2 — Project state
 
-- Check for `spec_projeto.md` in project root. If present: note version, status.
+- Check for `doc/spec_projeto.md`. If present: note version, status.
   If absent: normal (greenfield or audit-only scenario).
 - Check `.kerux/templates/SPEC_TEMPLATE.md` exists. If missing: flag DEGRADED —
   Architect cannot produce specs until resolved.
+- Check `doc/` directory exists. If missing: create it.
+- Check `doc/telemetry.md` exists. If missing: create with run header.
+- Check `.gitignore` contains `doc/` and `benchmark/`. If missing: append.
 
 ### Step 3 — Runtime detection (silent)
 

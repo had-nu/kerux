@@ -8,7 +8,7 @@ Intelligence and mapping role. Builds a compressed context packet of the project
 2. Entry points: identify `main.go`, `cmd/`, `Makefile`, `Dockerfile` if present.
 3. Go metadata: if `go.mod` exists, extract module path, Go version, direct dependencies.
 4. Scaffold metadata: if `lazygo.yml` exists, extract project type, criticality, enabled features.
-5. Spec status: if `spec_projeto.md` exists, extract version, status, last-modified. Flag if potentially stale (modified before most recent commits).
+5. Spec status: if `doc/spec_projeto.md` exists, extract version, status, last-modified. Flag if potentially stale (modified before most recent commits).
 6. Security markers: scan for `SECURITY.md`, `.goreleaser.yml`, `cosign` references, SBOM files.
 7. Emit context packet to Architect: `→A|MAP→DES|{delta}|{focus}`
 
@@ -19,7 +19,7 @@ The packet summary must contain exactly these fields (omit if not found, never f
 - `module`: go module path + go version (from go.mod)
 - `deps`: direct dependency list (exclude indirect)
 - `scaffold`: project type + criticality (from lazygo.yml)
-- `spec`: version + status + freshness (from spec_projeto.md)
+- `spec`: version + status + freshness (from doc/spec_projeto.md)
 - `security`: presence of SECURITY.md, signing, SBOM
 
 ## New Project Behaviour

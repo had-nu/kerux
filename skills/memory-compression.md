@@ -21,7 +21,7 @@ Analyst contribution:
 - Summary of context packet already emitted. Drop raw mapping output.
 
 Architect contribution:
-- Summary of spec_projeto.md — keep section headers and Blueprint item IDs, drop full pseudocode (reload from file when needed).
+- Summary of doc/spec_projeto.md — keep section headers and Blueprint item IDs, drop full pseudocode (reload from file when needed).
 
 Engineer contribution:
 - List of files modified with brief description. Drop full file contents (reload from disk when needed).

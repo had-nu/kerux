@@ -11,11 +11,11 @@ is the handoff contract. Do not audit from memory.
 
 ## Playbook
 
-1. Read `spec_projeto.md` Blueprint + Guardrails sections.
+1. Read `spec_projeto.md` Threat Model, Blueprint, and Guardrails sections.
 2. Read the Engineer's handoff packet — identify modified/created files.
 3. Verify every Blueprint item was addressed. Missing file = REJECT.
-4. Apply the code-review-protocol checklist:
-   - Security Audit (Sec)
+4. Apply the code-review-protocol checklist contextually:
+   - Security Audit (Sec) — **Crucial:** Evaluate findings against the project's specific Threat Model and context. A missing control for an out-of-scope threat is not a REJECT, but a missing control for a mapped threat is.
    - Supply Chain Audit (SCA)
    - Logic Verification (Dev)
    - Envelope Compatibility (if applicable)

@@ -11,6 +11,7 @@ benchmark/
 *.test
 *.out
 *.sh
+validate.sh
 
 # Go workspace
 go.work

@@ -70,7 +70,7 @@ Produce spec_projeto.md following the SPEC_TEMPLATE.md structure:
 2. Goals: measurable outcomes
 3. Architecture: system diagram + component inventory
 4. Blueprint: file list with [NEW]/[MODIFY]/[DELETE] markers + pseudocode for complex logic
-5. Security: threat model (ID, threat, vector, control) for every trust boundary
+5. Security: threat model (ID, threat, vector, control) for every trust boundary. **Context is key:** Define a realistic threat model based on the project's operational environment so the Auditor can assess risks proportionally.
 6. Testing: unit + E2E + acceptance criteria
 7. Guardrails: checklist for the Auditor (S1, S2, ... with pass conditions)
 8. CI Mirror: automated checks that enforce spec requirements
